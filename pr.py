@@ -1,37 +1,60 @@
-import tkinter as tk
+from tkinter import *
+from tkinter.ttk import Treeview
 
+listaAmigosBellaKath=[
+    ("PesoPluma","bailasola"),
+    ("ElBogueto","boguetito"),
+    ("KalyUchis","Uchisuchis"),
+    ("Anita","takisconchile")
+]
 
-class CustomLabelFrame(tk.Frame):
-    def __init__(self, master=None, **kwargs):
-        super().__init__(master, **kwargs)
+listaUsuarios=[("SantaFe","1234"),
+               ("BellaKath","bellita"),
+               ("DonOmar", "omarcin"),
+               ("Belinda", "gokufase2"),
+               ("TaylorSwift", "ganamosNFL"),
+               ("DanyFlow", "ternurita"),
+               ("Ozuna", "ojitosclaritos"),
+               ]
 
-        self.title = kwargs.get('title', 'LabelFrame')
+def muestraSeleccion(evento):
+    print("Mostrar seleccion")
+    f=tv.focus_get().selection()
+    print(f)
+    elemento=f[0]
+    print(tv.item(elemento)['values'])
 
-        # Crear un borde y un título usando un Label
-        self.border_label = tk.Label(self, text=self.title, relief="groove", bd=2)
-        self.border_label.pack(side="top", fill="x")
+root=Tk()
+tv=Treeview(root,columns=("c1","c2"))
+tv.heading("#0",text="ID")
+tv.heading("c1",text="USUARIOS")
+tv.heading("c2",text="PASSWORDS")
+tv.tag_configure("azulito",background="light blue",font=("Arial",15))
+tv.tag_configure("verdecito",background="light green",font=("Arial",15))
+tv.pack()
+contador=0
+for item in listaUsuarios:
+    contador+=1
+    if contador%2==0:
+        tv.insert("",END,text=str(contador),values=(item[0],item[1]),tags=['azulito'])
+    else:
+        tv.insert("", END, text=str(contador), values=(item[0], item[1]), tags=['verdecito'])
 
-        # Espacio para agregar otros widgets
-        self.inner_frame = tk.Frame(self)
-        self.inner_frame.pack(fill="both", expand=True)
+for item in listaAmigosBellaKath:
+    contador+=1
+    tv.insert("I002", END, text=str(contador), values=(item[0], item[1]))
 
-    def add_widget(self, widget):
-        widget.pack(in_=self.inner_frame, padx=5, pady=5)
+listadoObjetos=tv.get_children()
+print(listadoObjetos)
+#tv.delete(listadoObjetos[2])
 
+#for elemento in listadoObjetos:
+#    tv.delete(elemento)
+tv.selection_set(["I003","I004","I005"])
+datosSeleccionados=tv.selection()
+for valores in datosSeleccionados:
+    print(tv.item(valores)['values'])
 
-# Ejemplo de uso
-root = tk.Tk()
-root.title("Ejemplo de CustomLabelFrame")
-
-# Crear un CustomLabelFrame con un título personalizado
-custom_label_frame = CustomLabelFrame(root)
-custom_label_frame.pack(padx=10, pady=10)
-
-# Agregar widgets al CustomLabelFrame
-label = tk.Label(custom_label_frame.inner_frame, text="Este es un label dentro del CustomLabelFrame")
-button = tk.Button(custom_label_frame.inner_frame, text="Este es un botón dentro del CustomLabelFrame")
-
-custom_label_frame.add_widget(label)
-custom_label_frame.add_widget(button)
+tv.bind("<<TreeviewSelect>>", muestraSeleccion)
 
 root.mainloop()
