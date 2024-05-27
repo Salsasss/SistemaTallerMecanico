@@ -5,7 +5,6 @@ class FrameUsuarios(CTkFrame):
     def __init__(self, root):
         super().__init__(root)
         CTkLabel(self, text='Empleados', font=('arial', 25, 'bold')).pack(pady=10)
-
         self.texto_buscar = StringVar()
 
         self._elementos_herramientas()
@@ -21,7 +20,7 @@ class FrameUsuarios(CTkFrame):
                 self.texto_buscar.set('Buscar')
 
         cont_herramientas = CTkFrame(self, fg_color='#dbdbdb')
-        cont_herramientas.pack(fill='x', pady=10, padx=15)
+        cont_herramientas.pack(fill='x', padx=10, pady=10)
 
         self.buscar = CTkEntry(cont_herramientas, width=400, textvariable=self.texto_buscar, text_color='black', font=('arial', 16), border_width=2, border_color='blue', corner_radius=10)
         self.buscar.grid(row=0, column=0, ipady=5, padx=(0, 10))
@@ -37,12 +36,12 @@ class FrameUsuarios(CTkFrame):
 
     def _elementos_tabla(self):
         cont_tabla = CTkFrame(self, fg_color='red')
-        cont_tabla.pack(fill='both', padx=15, pady=(0, 50), expand=True)
+        cont_tabla.pack(fill='both', padx=10, pady=(0, 50), expand=True)
 
         style = ttk.Style()
         style.theme_use('default')
-        style.configure('Treeview', background='white', foreground='black', font=('arial', 15))
         style.configure('Treeview.Heading', background='blue', foreground='white', font=('arial', 16, 'bold'), padding=8)
+        style.configure('Treeview', font=('arial', 16))
 
         self.serv = ttk.Treeview(cont_tabla)
         self.serv.pack(fill='both', expand=True)

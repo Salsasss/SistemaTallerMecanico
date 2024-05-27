@@ -143,8 +143,8 @@ class Servicios(Base):
 class Refacciones(Base):
     __tablename__ = "refacciones"
 
-
     ID_refacciones = Column(Integer, primary_key=True)
+    NombreRefacciones = Column(String)
     Modelo = Column(String)
     Cantidad = Column(Integer)
     Costo = Column(Double)
@@ -154,9 +154,18 @@ class Refacciones(Base):
 
 
     def __repr__(self):
-        return f"<Refacciones \n ID = {self.ID_refacciones} \n Modelo = {self.Modelo} \n Cantidad = {self.Cantidad} \n Costo = {self.Costo} \n>\n\n"
+        return f"<Refacciones \n ID = {self.ID_refacciones} \n Nombre = {self.NombreRefacciones}\n Modelo = {self.Modelo} \n Cantidad = {self.Cantidad} \n Costo = {self.Costo} \n>\n\n"
 
 
 
 #--------------------------------# METADATA #------------------------------------#
 Base.metadata.create_all(engine)
+
+def obtener_refacciones():
+    return session.query(
+        Refacciones.ID_refacciones,
+        Refacciones.NombreRefacciones,
+        Refacciones.Modelo,
+        Refacciones.Cantidad,
+        Refacciones.Costo
+    ).all()

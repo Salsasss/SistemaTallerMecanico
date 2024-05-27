@@ -1,9 +1,10 @@
 from customtkinter import *
+from Vista.MensajeEmergente import MensajeEmergente
 
 class FrameNuevoServicio(CTkFrame):
     def __init__(self, root):
         super().__init__(root, fg_color='white')
-        CTkLabel(self, text='Nuevo Servicio ', font=('arial', 25, 'bold')).pack(pady=(0,5))
+        CTkLabel(self, text='Nuevo Servicio ', font=('arial', 25, 'bold')).pack(pady=10)
 
         self.tipo_cliente = StringVar()
         self.nombre = StringVar()
@@ -41,9 +42,10 @@ class FrameNuevoServicio(CTkFrame):
 
         for dato in datos:
             if dato == '':
+                MensajeEmergente(self, 'Error', 'Por favor. Llene todos los campos').mensaje_error()
                 return
 
-        print('god')
+        MensajeEmergente(self, 'Exito', 'Servicio registrado Correctamente').mensaje_correcto()
 
     def _elementos_cliente(self):
         def elementos_persona(cont):
@@ -61,12 +63,12 @@ class FrameNuevoServicio(CTkFrame):
                 elementos_persona(cont)
 
         info_cliente = CTkFrame(self)
-        info_cliente.pack(fill='x', pady=5, expand=False)
+        info_cliente.pack(fill='x', padx=10, pady=5, expand=False)
 
         tipo_cliente = CTkCheckBox(info_cliente, text='Es empresa', font=('arial', 16, 'bold'), variable=self.tipo_cliente, command=revisar_tipo)
         tipo_cliente.grid(row=0, column=0, padx=5, pady=5)
 
-        info_persona = CTkFrame(info_cliente, fg_color='#dbdbdb' )
+        info_persona = CTkFrame(info_cliente, fg_color='#dbdbdb')
         info_persona.grid(row=1, column=0, columnspan=4, sticky=EW)
 
         CTkLabel(info_persona, text='Datos del Cliente', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
@@ -87,7 +89,7 @@ class FrameNuevoServicio(CTkFrame):
 
     def _elementos_dire(self):
         info_dir = CTkFrame(self)
-        info_dir.pack(fill='x', pady=5, expand=False)
+        info_dir.pack(fill='x', padx=10, pady=5, expand=False)
 
         CTkLabel(info_dir, text='Datos de Dirección', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
 
@@ -114,12 +116,12 @@ class FrameNuevoServicio(CTkFrame):
 
     def _elementos_auto(self):
         info_auto= CTkFrame(self)
-        info_auto.pack(fill='x', pady=5, expand=False)
+        info_auto.pack(fill='x', padx=10, pady=5, expand=False)
 
         CTkLabel(info_auto, text='Datos del Auto', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
 
         CTkLabel(info_auto, width=135, text='Marca: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=0, padx=5, pady=5)
-        CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.marca).grid(row=1, column=1, padx=(0,20))
+        CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.marca).grid(row=1, column=1, padx=(0, 20))
 
         CTkLabel(info_auto, width=135, text='Modelo: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=2, padx=5, pady=5)
         CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.modelo).grid(row=1, column=3, padx=(0,20))
@@ -140,4 +142,4 @@ class FrameNuevoServicio(CTkFrame):
         CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.placas).grid(row=4, column=1, padx=(0,20))
 
     def _boton_submit(self):
-        CTkButton(self, text='Guardar Servicio', font=('arial', 16, 'bold'), fg_color='blue', command=self._guardar_servicio).pack(side=RIGHT, ipadx=25, ipady=25, expand=False)
+        CTkButton(self, text='Guardar Servicio', font=('arial', 16, 'bold'), fg_color='blue', command=self._guardar_servicio).pack(side=RIGHT, padx=10, ipadx=5, ipady=5, expand=False)
