@@ -1,6 +1,7 @@
 from customtkinter import *
 from Controlador import ctrlFunciones
 from Vista.FrameCataRefacciones import FrameCataRefacciones
+from Vista.FrameClientes import FrameClientes
 from Vista.FrameFactura import FrameFactura
 from Vista.FrameNuevoServicio import FrameNuevoServicio
 from Vista.FramePagar import FramePagar
@@ -33,15 +34,18 @@ class FrameMenuPrincipal(CTkFrame):
         if acc==0:
             FrameNuevoServicio(self.cont_principal).pack(fill='both', expand=True)
         elif acc==1:
-            FrameServicios(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+            FrameClientes(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
         elif acc==2:
-            FrameUsuarios(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+            FrameServicios(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
         elif acc==3:
-            FramePagar(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+            FrameUsuarios(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
         elif acc==4:
-            FrameFactura(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+            FramePagar(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
         elif acc==5:
             FrameCataRefacciones(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+        #elif acc==6:
+            #FrameFactura(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+         #   pass
         elif acc==6:
             FrameRefaccionesAdmi(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
 
@@ -52,7 +56,7 @@ class FrameMenuPrincipal(CTkFrame):
         label_logo = CTkLabel(barra_opciones, image=ctrlFunciones.leer_imagen('../media/logo.jpg', (125, 125)))
         label_logo.grid(row=0, column=0, pady=20)
 
-        opc = ['🚗 Nuevo Servicio', '🔧 Servicios', '👤 Usuarios', 'pagar', 'factura', 'refacciones','admi']
+        opc = ['🚗 Nuevo Servicio', 'Clientes', '🔧 Servicios', '👤 Usuarios', 'pagar', 'admi', 'admi +']
         for i in range(len(opc)):
             label = CTkLabel(barra_opciones, width=200, text=opc[i], text_color='white', font=('arial', 16, 'bold'), corner_radius=10)
             label.grid(row=i+1, column=0, ipady=15, padx=10)
@@ -60,4 +64,4 @@ class FrameMenuPrincipal(CTkFrame):
             self.opciones.append(label)
 
         texto_saludo = CTkLabel(barra_opciones, text="¡Hola, Aaron!", text_color='white', font=('arial', 16, 'bold'))
-        texto_saludo.grid(row=9, column=0, sticky=S, pady=320)
+        texto_saludo.grid(row=10, column=0, sticky=S, pady=320)

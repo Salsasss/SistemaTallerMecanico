@@ -4,7 +4,7 @@ from Vista.MensajeEmergente import MensajeEmergente
 class FrameNuevoServicio(CTkFrame):
     def __init__(self, root):
         super().__init__(root, fg_color='white')
-        CTkLabel(self, text='Nuevo Servicio ', font=('arial', 25, 'bold')).pack(pady=10)
+        CTkLabel(self, text='Nuevo Servicio ', font=('arial', 25, 'bold')).pack(pady=(10, 5))
 
         self.tipo_cliente = StringVar()
         self.nombre = StringVar()
@@ -65,13 +65,13 @@ class FrameNuevoServicio(CTkFrame):
         info_cliente = CTkFrame(self)
         info_cliente.pack(fill='x', padx=10, pady=5, expand=False)
 
+        CTkLabel(info_cliente, text='Datos del Cliente', font=('arial', 18, 'bold')).pack(fill='x', padx=10, pady=5, expand=False)
+
         tipo_cliente = CTkCheckBox(info_cliente, text='Es empresa', font=('arial', 16, 'bold'), variable=self.tipo_cliente, command=revisar_tipo)
-        tipo_cliente.grid(row=0, column=0, padx=5, pady=5)
+        tipo_cliente.pack(pady=5, expand=False)
 
         info_persona = CTkFrame(info_cliente, fg_color='#dbdbdb')
-        info_persona.grid(row=1, column=0, columnspan=4, sticky=EW)
-
-        CTkLabel(info_persona, text='Datos del Cliente', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
+        info_persona.pack(pady=5, expand=False)
 
         CTkLabel(info_persona, width=135, text='Nombre: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=0, padx=5, pady=5)
         CTkEntry(info_persona, width=200, font=('arial', 16), textvariable=self.nombre).grid(row=1, column=1, padx=(0, 20))
@@ -80,7 +80,7 @@ class FrameNuevoServicio(CTkFrame):
         CTkEntry(info_persona, width=200, font=('arial', 16), textvariable=self.telefono).grid(row=1, column=3, padx=(0, 20))
 
         cont = CTkFrame(info_persona)
-        cont.grid(row=2, column=0, columnspan=4, sticky=EW)
+        cont.grid(row=2, column=0, columnspan=4)
 
         elementos_persona(cont)
 
@@ -88,8 +88,11 @@ class FrameNuevoServicio(CTkFrame):
         CTkEntry(info_persona, width=200, font=('arial', 16), textvariable=self.rfc).grid(row=3, column=1, padx=(0, 20))
 
     def _elementos_dire(self):
-        info_dir = CTkFrame(self)
-        info_dir.pack(fill='x', padx=10, pady=5, expand=False)
+        info_dir_cont = CTkFrame(self, fg_color='#dbdbdb')
+        info_dir_cont.pack(fill='x', padx=10, pady=5, expand=False)
+
+        info_dir = CTkFrame(info_dir_cont)
+        info_dir.pack(expand=False)
 
         CTkLabel(info_dir, text='Datos de Dirección', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
 
@@ -115,8 +118,11 @@ class FrameNuevoServicio(CTkFrame):
         CTkEntry(info_dir, width=200, font=('arial', 16), textvariable=self.num_ext).grid(row=4, column=1, padx=(0,20))
 
     def _elementos_auto(self):
-        info_auto= CTkFrame(self)
-        info_auto.pack(fill='x', padx=10, pady=5, expand=False)
+        info_auto_cont = CTkFrame(self)
+        info_auto_cont.pack(fill='x', padx=10, pady=5, expand=False)
+
+        info_auto= CTkFrame(info_auto_cont, fg_color='#dbdbdb')
+        info_auto.pack(expand=False)
 
         CTkLabel(info_auto, text='Datos del Auto', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
 

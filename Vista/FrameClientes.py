@@ -1,25 +1,27 @@
 from tkinter import ttk
 from customtkinter import *
 
-class FrameUsuarios(CTkFrame):
+class FrameClientes(CTkFrame):
     def __init__(self, root):
         super().__init__(root)
-        CTkLabel(self, text='Empleados', font=('arial', 25, 'bold')).pack(pady=(10, 0))
+        CTkLabel(self, text='Clientes', font=('arial', 25, 'bold')).pack(pady=(10, 0))
+
         self.texto_buscar = StringVar()
 
         self._elementos_herramientas()
         self._elementos_tabla()
+        self.insertar_clientes()
 
     def _elementos_herramientas(self):
         def buscar(e):
-            if self.texto_buscar.get() == 'Buscar':
+            if self.texto_buscar.get()=='Buscar':
                 self.texto_buscar.set('')
 
         def placeholder(e):
-            if self.texto_buscar.get() == '':
+            if self.texto_buscar.get()=='':
                 self.texto_buscar.set('Buscar')
 
-        # Barra de busqueda
+        #Barra de busqueda
         cont_herramientas = CTkFrame(self, fg_color='#dbdbdb')
         cont_herramientas.pack(fill='x', padx=10, pady=10)
 
@@ -29,14 +31,14 @@ class FrameUsuarios(CTkFrame):
         self.buscar.bind('<KeyRelease>', placeholder)
         self.texto_buscar.set('Buscar')
 
-        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['Nombre', 'Apellido Paterno', 'Apellido Materno', 'Edad'])
+        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['Nombre','Apellido Paterno', 'Apellido Materno', 'Edad'])
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
         self.boton_reportes = CTkButton(cont_herramientas, text='Generar Reporte', text_color='white', font=('arial', 16, 'bold'), fg_color='blue')
         self.boton_reportes.pack(fill='x', side='left', ipady=5)
 
     def _elementos_tabla(self):
-        cont_tabla = CTkFrame(self, fg_color='red')
+        cont_tabla = CTkFrame(self)
         cont_tabla.pack(fill='both', padx=10, pady=(0, 50), expand=True)
 
         style = ttk.Style()
@@ -51,14 +53,13 @@ class FrameUsuarios(CTkFrame):
         vscroll.pack(side='right', fill='y')
         self.serv.configure(yscrollcommand=vscroll.set)
 
-        self.serv['columns'] = ('1', '2', '3', '4', '5', '6')
+        self.serv['columns'] = ('1', '2', '3', '4', '5')
         self.serv.column('#0', width=40, minwidth=50)
         self.serv.column('1', anchor=CENTER, width=100)
         self.serv.column('2', anchor=CENTER, width=160)
         self.serv.column('3', anchor=CENTER, width=160)
         self.serv.column('4', anchor=CENTER, width=100)
         self.serv.column('5', anchor=CENTER, width=100)
-        self.serv.column('6', anchor=CENTER, width=100)
 
         self.serv.heading('#0', text='ID')
         self.serv.heading('1', text='Nombre')
@@ -66,12 +67,8 @@ class FrameUsuarios(CTkFrame):
         self.serv.heading('3', text='Apellido Materno')
         self.serv.heading('4', text='RFC')
         self.serv.heading('5', text='Teléfono')
-        self.serv.heading('6', text='Puesto')
 
-        self.serv.insert('', END, text='Elemento 1', values=('1A', '1B', '1C', 's', '2'))
-        self.serv.insert('', END, text='Elemento 1', values=('1A', '1B', '1C', 's', '2'))
-        self.serv.insert('', END, text='Elemento 1', values=('1A', '1B', '1C', 's', '2'))
-        self.serv.insert('', END, text='Elemento 1', values=('1A', '1B', '1C', 's', '2'))
-        self.serv.insert('', END, text='Elemento 1', values=('1A', '1B', '1C', 's', '2'))
-        self.serv.insert('', END, text='Elemento 2', values=('2A', '2B', '2C', 'x', 'w'))
+    def insertar_clientes(self):
+        # Aqui se conectaria con la base de datos metiendo los clientes con un for
+        usuario = self.serv.insert('', END, text='1', values=('Aarón', 'Salas', 'Chávez', 'SACA03316HVZLA4', '2291411203'))
 

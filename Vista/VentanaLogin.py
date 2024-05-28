@@ -16,6 +16,7 @@ class Login(CTk):
         self.cont_login = CTkFrame(self, fg_color='white', corner_radius=20)
         self.cont_login.grid(row=0, column=0, ipady=20, pady=(0, 20))
 
+        self._loggearse()
         self.show = BooleanVar()
 
         self._elementos_login()
@@ -29,7 +30,7 @@ class Login(CTk):
         '''''
         self.withdraw()
         menu_principal = CTkToplevel()
-        menu_principal.geometry(f'1000x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
+        menu_principal.geometry(f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
         FrameMenuPrincipal(menu_principal).pack(fill='both', expand=True)
 
     def _elementos_login(self):

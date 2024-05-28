@@ -5,7 +5,7 @@ from Modelo.Data_Base import Refacciones, session
 
 class FrameRefaccionesAdmi(CTkFrame):
     def __init__(self, root):
-        super().__init__(root, fg_color='white')
+        super().__init__(root)
         CTkLabel(self, text='Agregar Refacción', font=('arial', 25, 'bold')).pack(pady=(0, 5), ipady=10)
 
         self.id_refaccion = StringVar()
@@ -21,48 +21,55 @@ class FrameRefaccionesAdmi(CTkFrame):
 
     def _elementos_refaccion(self):
         img_path = "../media/carpeta.png"
-        image = CTkImage(Image.open(img_path), size=(150, 150))
+        image = CTkImage(Image.open(img_path), size=(100, 100))
 
         info_refaccion = CTkFrame(self)
-        info_refaccion.pack(fill='both', padx=15, pady=(0, 20), ipady=15, expand=True)
+        info_refaccion.pack(fill='x', padx=10, pady=(0, 10), ipady=15, expand=False)
 
-        CTkLabel(info_refaccion, text='Datos de la Refacción', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=3, padx=5, pady=5)
-        CTkLabel(info_refaccion, image=image, padx=50).grid(column=5, row=1, rowspan=3, columnspan=2)
+        CTkLabel(info_refaccion, text='Datos de la Refacción', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=2, padx=5, pady=5)
 
         CTkLabel(info_refaccion, width=135, text='ID Refacción: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=0, padx=5, pady=5)
-        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.id_refaccion).grid(row=1, column=2, padx=(0, 20))
-
-        CTkLabel(info_refaccion, width=135, text='Nombre Refacción: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=3, padx=5, pady=5)
-        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.nombre_refaccion).grid(row=1, column=4, padx=(0, 20))
+        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.id_refaccion).grid(row=1, column=1, padx=(0, 10))
 
         CTkLabel(info_refaccion, width=135, text='Modelo: ', font=('arial', 16, 'bold'), anchor='e').grid(row=2, column=0, padx=5, pady=5)
-        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.modelo).grid(row=2, column=2, padx=(0, 20))
-
-        CTkLabel(info_refaccion, width=135, text='Cantidad: ', font=('arial', 16, 'bold'), anchor='e').grid(row=2, column=3, padx=5, pady=5)
-        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.cantidad).grid(row=2, column=4, padx=(0, 20))
+        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.modelo).grid(row=2, column=1, padx=(0, 10))
 
         CTkLabel(info_refaccion, width=135, text='Costo: ', font=('arial', 16, 'bold'), anchor='e').grid(row=3, column=0, padx=5, pady=5)
-        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.costo).grid(row=3, column=2, padx=(0, 20))
+        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.costo).grid(row=3, column=1, padx=(0, 10))
+
+        CTkLabel(info_refaccion, width=135, text='Nombre Refacción: ', font=('arial', 16, 'bold'), anchor='e').grid(row=4, column=0, padx=5, pady=5)
+        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.nombre_refaccion).grid(row=4, column=1, padx=(0, 10))
+
+        CTkLabel(info_refaccion, width=135, text='Cantidad: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=2, padx=5, pady=5)
+        CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.cantidad).grid(row=1, column=3,)
+
+        CTkLabel(info_refaccion, image=image, padx=50).grid(row=2, column=3, rowspan=3, columnspan=2)
 
     def _boton_submit(self):
         buttons_frame = CTkFrame(self)
-        buttons_frame.pack(fill='both', padx=15, pady=(0, 20), expand=False)
+        buttons_frame.pack(fill='x', padx=10, pady=(0, 10), expand=False)
 
         CTkButton(buttons_frame, text='Guardar', text_color='white', fg_color='green', font=('arial', 16, 'bold'), command=self._guardar_refaccion).pack(side='left', padx=10, pady=5)
         CTkButton(buttons_frame, text='Modificar', text_color='white', fg_color='orange', font=('arial', 16, 'bold'), command=self._modificar_refaccion).pack(side='left', padx=10, pady=5)
         CTkButton(buttons_frame, text='Eliminar', text_color='white', fg_color='red', font=('arial', 16, 'bold'), command=self._eliminar_refaccion).pack(side='left', padx=10, pady=5)
 
     def _crear_treeview(self):
-        treeview_frame = CTkFrame(self)
-        treeview_frame.pack(fill='both', padx=15, pady=(0, 20), expand=True)
-
         style = ttk.Style()
-        style.theme_use('default')
         style.configure('Treeview.Heading', background='blue', foreground='white', font=('arial', 16, 'bold'), padding=8)
-        style.configure('Treeview', rowheight=60)
+        style.configure('Treeview', font=('arial', 16))
+
+        treeview_frame = CTkFrame(self)
+        treeview_frame.pack(fill='both', padx=10, pady=(0, 10), expand=False)
 
         self.treeview = ttk.Treeview(treeview_frame, columns=('ID', 'Nombre', 'Modelo', 'Cantidad', 'Costo'), show='headings')
-        self.treeview.heading('ID', text='ID Refacción')
+
+        self.treeview.column('#0', width=50)
+        self.treeview.column('Nombre', anchor=CENTER, width=160)
+        self.treeview.column('Modelo', anchor=CENTER, width=160)
+        self.treeview.column('Cantidad', anchor=CENTER, width=50)
+        self.treeview.column('Costo', anchor=CENTER, width=50)
+
+        self.treeview.heading('ID', text='ID')
         self.treeview.heading('Nombre', text='Nombre')
         self.treeview.heading('Modelo', text='Modelo')
         self.treeview.heading('Cantidad', text='Cantidad')

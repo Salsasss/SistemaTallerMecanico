@@ -6,10 +6,9 @@ from Modelo.Data_Base import obtener_refacciones
 class FrameCataRefacciones(CTkFrame):
     def __init__(self, root):
         super().__init__(root)
+        CTkLabel(self, text='Catálogo de Refacciones', font=('arial', 25, 'bold')).pack(pady=(10, 0))
 
-        CTkLabel(self, text='Catálogo de Refacciones', font=('arial', 25, 'bold')).pack(pady=10)
         self.texto_buscar = StringVar()
-
         self._elementos_herramientas()
         self._elementos_tabla()
         self._cargar_datos()
@@ -24,29 +23,27 @@ class FrameCataRefacciones(CTkFrame):
                 self.texto_buscar.set('Buscar')
 
         cont_herramientas = CTkFrame(self, fg_color='#dbdbdb')
-        cont_herramientas.pack(fill='x', pady=10, padx=15)
+        cont_herramientas.pack(fill='x', pady=10, padx=10)
 
         self.buscar = CTkEntry(cont_herramientas, width=400, textvariable=self.texto_buscar, font=('arial', 16), border_width=2, border_color='blue', corner_radius=10)
-        self.buscar.grid(row=0, column=0, ipady=5, padx=(0, 10))
+        self.buscar.pack(fill='x', side='left', expand=True, ipady=5, padx=(0, 10))
         self.buscar.bind('<Button-1>', buscar)
         self.buscar.bind('<KeyRelease>', placeholder)
         self.texto_buscar.set('Buscar')
 
-        self.select_buscar = CTkOptionMenu(cont_herramientas, width=120, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['ID', 'Nombre', 'Modelo'])
-        self.select_buscar.grid(row=0, column=1, ipady=5, padx=(0, 10))
+        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['Nombre', 'Apellido Paterno', 'Apellido Materno', 'Edad'])
+        self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
         self.boton_reportes = CTkButton(cont_herramientas, text='Generar Reporte', text_color='white', font=('arial', 16, 'bold'), fg_color='blue')
-        self.boton_reportes.grid(row=0, column=2, ipady=5, padx=(0, 70))
+        self.boton_reportes.pack(fill='x', side='left', ipady=5)
 
     def _elementos_tabla(self):
         cont_tabla = CTkFrame(self)
-        cont_tabla.pack(fill='both', padx=15, pady=(0, 20), expand=True)
+        cont_tabla.pack(fill='both', padx=10, pady=(0, 20), expand=True)
 
         style = ttk.Style()
-        style.theme_use('default')
         style.configure('Treeview.Heading', background='blue', foreground='white', font=('arial', 16, 'bold'), padding=8)
-        style.configure('Treeview', rowheight=100)
-        style.configure('Nested.Treeview', background='#F3F3F3', foreground='black', rowheight=100)
+        style.configure('Treeview', font=('arial', 16))
 
         scrollbar = ttk.Scrollbar(cont_tabla)
         scrollbar.pack(side='right', fill='y')
@@ -55,7 +52,7 @@ class FrameCataRefacciones(CTkFrame):
         scrollbar.config(command=self.serv.yview)
 
         self.serv['columns'] = ('1', '2', '3', '4', '5')
-        self.serv.column('#0', width=60, anchor=CENTER)
+        self.serv.column('#0', width=50, anchor=CENTER)
         self.serv.column('1', anchor=CENTER, width=40, minwidth=50)
         self.serv.column('2', anchor=CENTER, width=160)
         self.serv.column('3', anchor=CENTER, width=90)
@@ -93,8 +90,6 @@ class FrameCataRefacciones(CTkFrame):
             '38': ImageTk.PhotoImage(Image.open("../media/cacahuatesnissanversa2014.png").resize((90, 90), Image.Resampling.LANCZOS)),
             '40': ImageTk.PhotoImage(Image.open("../media/aceitemineral.png").resize((60, 90), Image.Resampling.LANCZOS)),
             '42': ImageTk.PhotoImage(Image.open("../media/aceitesintetico.png").resize((60, 90), Image.Resampling.LANCZOS)),
-            '44': ImageTk.PhotoImage(Image.open("../media/aceitesemisintetico.png").resize((85, 90), Image.Resampling.LANCZOS)),
-            '46': ImageTk.PhotoImage(Image.open("../media/horquillanissanversa2014.png").resize((80, 90), Image.Resampling.LANCZOS)),
             '61': ImageTk.PhotoImage(Image.open("../media/bobinanissanversa2014.png").resize((100, 100), Image.Resampling.LANCZOS)),
             '70': ImageTk.PhotoImage(Image.open("../media/rotulasnissanversa2014.png").resize((90, 90), Image.Resampling.LANCZOS)),
             '90': ImageTk.PhotoImage(Image.open("../media/anticongelanteverde.png").resize((80, 90), Image.Resampling.LANCZOS)),

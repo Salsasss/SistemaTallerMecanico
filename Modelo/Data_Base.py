@@ -34,6 +34,7 @@ class Mantenimiento(Base):
 
 
     Orden = Column(Integer, primary_key=True)
+    Estatus = Column(Integer)
     Factura = Column(Integer)
 
     # ------# FK's de Vehiculo, Empleado y Servicio #------#
@@ -94,7 +95,7 @@ class Cliente(BaseModel_Names):
 class Empleado(BaseModel_Names):
     __tablename__ = "empleado"
 
-
+    Contrasenia = Column(String)
     Puesto = Column(String)
 
     # ------# Relacion con Mantenimiento #------#
