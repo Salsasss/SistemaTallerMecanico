@@ -1,13 +1,14 @@
 from customtkinter import *
 from Controlador import ctrlFunciones
-from Controlador.ctrlFunciones import color, color
-
+from Controlador.ctrlFunciones import color
 
 class MensajeEmergente(CTkToplevel):
     def __init__(self, root, titulo, msg):
         super().__init__(root, fg_color='#dbdbdb')
         self.title(titulo)
         self.geometry(f'+{(self.winfo_screenwidth() // 2)}+{(self.winfo_screenheight() // 2)}')
+        self.grab_set()
+
         self.ans = None
         self.label_imagen = CTkLabel(self, text='')
         self.label_imagen.grid(row=0, column=0, padx=(10, 0), pady=(15, 0))

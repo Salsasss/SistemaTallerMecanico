@@ -6,12 +6,12 @@ from Vista.FrameEmpleados import FrameEmpleados
 from Vista.FrameNuevoServicio import FrameNuevoServicio
 from Vista.FramePagar import FramePagar
 from Vista.FrameRefaccionesAdmi import FrameRefaccionesAdmi
-from Vista.FrameRegisEmpleado import FrameRegisEmpleado
 from Vista.FrameAutomoviles import FrameAutomoviles
 
 class FrameMenuPrincipal(CTkFrame):
     def __init__(self, root):
         super().__init__(root)
+        self.root = root
         set_appearance_mode("light")
 
         self.opciones = []

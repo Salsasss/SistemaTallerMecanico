@@ -1,9 +1,13 @@
-from tkinter import Tk
-from Vista.MensajeEmergente import MensajeEmergente
+import tkinter as tk
 
-root = Tk()
-ans = MensajeEmergente(root, 'Error', 'Por favor. Llene todos los campos')
-ans.mensaje_pregunta()
-root.wait_window(ans)
-print(ans.ans)
+def onFocusOut(event):
+    print("La ventana ha perdido el foco.")
+
+def onFocusIn(event):
+    print("La ventana ha obtenido el foco.")
+
+root = tk.Tk()
+root.bind("<FocusOut>", onFocusOut)
+root.bind("<FocusIn>", onFocusIn)
+
 root.mainloop()

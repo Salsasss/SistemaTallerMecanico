@@ -1,17 +1,14 @@
 from tkinter import ttk
 from customtkinter import *
-
 from Controlador.ctrlFunciones import color
 from Modelo.Data_Base import session, Empleado
 from Vista.FrameRegisEmpleado import FrameRegisEmpleado
 from Vista.MensajeEmergente import MensajeEmergente
 
-
 class FrameEmpleados(CTkFrame):
     def __init__(self, root):
         super().__init__(root)
         self.root = root
-        #CTkLabel(self, text='Empleados', font=('arial', 25, 'bold')).pack(pady=(10, 0))
 
         # Variables del filtro
         self.texto_buscar = StringVar()
@@ -21,10 +18,11 @@ class FrameEmpleados(CTkFrame):
         self._elementos_tabla()
         self.actualizar_treeview()
 
-    def _nuevo_empleado(self):
-        ventana_nuevo_empleado = CTkToplevel()
-        ventana_nuevo_empleado.title('Nuevo Empleado')
-        FrameRegisEmpleado(ventana_nuevo_empleado).pack(fill='both', expand=True)
+    def accion_empleado(self, accion, rfc=''):
+        ventana_nuevo_empleado = FrameRegisEmpleado(self, accion, rfc)
+        ventana_nuevo_empleado.geometry(f'+{(self.winfo_screenwidth()-1500 // 2)}+{(self.winfo_screenheight()-1500 // 2)}')
+        ventana_nuevo_empleado.grab_set()
+        ventana_nuevo_empleado.bind('<Destroy>', self.actualizar_treeview)
 
     def _elementos_herramientas(self):
         def quitar_placeholder(e):
@@ -44,27 +42,25 @@ class FrameEmpleados(CTkFrame):
 
         self.buscar = CTkEntry(cont_herramientas, width=400, textvariable=self.texto_buscar, font=('arial', 16), border_width=2, border_color='blue', corner_radius=10)
         self.buscar.pack(fill='x', side='left', expand=True, ipady=5, padx=(0, 10))
-        self.buscar.bind('<Button-1>', quitar_placeholder)
         self.buscar.bind('<KeyPress>', quitar_placeholder)
+        self.buscar.bind('<Button-1>', quitar_placeholder)
         self.buscar.bind('<KeyRelease>', poner_placeholder)
         self.texto_buscar.set('Buscar')
 
         self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Teléfono', 'Puesto'])
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
-        self.boton_reportes = CTkButton(cont_herramientas, text='Nuevo Empleado', text_color='white', font=('arial', 16, 'bold'), fg_color='#1e8b1e', command=self._nuevo_empleado)
+        self.boton_reportes = CTkButton(cont_herramientas, text='Nuevo Empleado', text_color='white', font=('arial', 16, 'bold'), fg_color='#1e8b1e', command=lambda: self.accion_empleado(0))
         self.boton_reportes.pack(fill='x', side='left', ipady=5)
         self.boton_reportes.bind('<Enter>', lambda event: color(event, boton=self.boton_reportes, color='#125412'))
 
-    def accion_doble_click(self, e):
-        ans = MensajeEmergente(self, 'Acciones', '¿Qué desea hacer?')
+    def accion_doble_click(self, e): # Editar empleado
+        ans = MensajeEmergente(self, 'Acciones', '¿Editar Empleado?')
         ans.mensaje_pregunta()
         self.wait_window(ans)
         if ans.ans:
-            #Vaciar el frame
-            for widget in self.root.pack_slaves():
-                widget.pack_forget()
-            FrameRegisEmpleado(self.root).pack(padx=10, pady=10, fill='both', expand=True)
+            rfc = self.serv.item(self.serv.selection()[0], 'text')
+            self.accion_empleado(1, rfc)
 
     def _elementos_tabla(self):
         def actualizar_busqueda(*args):
@@ -104,7 +100,7 @@ class FrameEmpleados(CTkFrame):
         self.texto_buscar.trace('w', actualizar_busqueda)
         self.buscar_por.trace('w', actualizar_busqueda)
 
-    def actualizar_treeview(self):
+    def actualizar_treeview(self, e=None):
         # Vaciando el Treeview de datos anteriores
         for item in self.serv.get_children():
             self.serv.delete(item)
@@ -127,7 +123,5 @@ class FrameEmpleados(CTkFrame):
             elif self.buscar_por.get() == '':
                 empleados = session.query(Empleado).all()
 
-        #print(self.texto_buscar.get())
-        #print(self.buscar_por.get())
         for empleado in empleados:
             self.serv.insert('', 'end', text=empleado.RFC, values=(empleado.Nombre, empleado.Apellido_Paterno, empleado.Apellido_Materno, empleado.Telefono, empleado.Puesto))
