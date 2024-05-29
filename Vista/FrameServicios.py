@@ -25,8 +25,7 @@ class FrameServicios(CTkFrame):
         cont_herramientas = CTkFrame(self, fg_color='#dbdbdb')
         cont_herramientas.pack(fill='x', padx=10, pady=10)
 
-        self.buscar = CTkEntry(cont_herramientas, width=400, textvariable=self.texto_buscar, font=('arial', 16),
-                               border_width=2, border_color='blue', corner_radius=10)
+        self.buscar = CTkEntry(cont_herramientas, width=400, textvariable=self.texto_buscar, font=('arial', 16), border_width=2, border_color='blue', corner_radius=10)
         self.buscar.pack(fill='x', side='left', expand=True, ipady=5, padx=(0, 10))
         self.buscar.bind('<Button-1>', buscar)
         self.buscar.bind('<KeyRelease>', placeholder)
@@ -81,5 +80,5 @@ class FrameServicios(CTkFrame):
             print(item_text)
 
         # Aqui se conectaria con la base de datos metiendo los clientes con un for
-        self.serv.insert('', END, text='9911201012031', values=('Volkswagen', '2024', '35345', 'SF91CK', 'Virtus', 'GIc99', 'En revisión'))
+        
         self.serv.bind('<Button-1>', completar_servicio)

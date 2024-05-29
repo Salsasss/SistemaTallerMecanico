@@ -43,7 +43,7 @@ class FrameRefaccionesAdmi(CTkFrame):
         CTkLabel(info_refaccion, width=135, text='Cantidad: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=2, padx=5, pady=5)
         CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.cantidad).grid(row=1, column=3,)
 
-        CTkLabel(info_refaccion, image=image, padx=50).grid(row=2, column=3, rowspan=3, columnspan=2)
+        CTkLabel(info_refaccion, text='', image=image, padx=50).grid(row=2, column=3, rowspan=3, columnspan=2)
 
     def _boton_submit(self):
         buttons_frame = CTkFrame(self)
@@ -56,7 +56,7 @@ class FrameRefaccionesAdmi(CTkFrame):
     def _crear_treeview(self):
         style = ttk.Style()
         style.configure('Treeview.Heading', background='blue', foreground='white', font=('arial', 16, 'bold'), padding=8)
-        style.configure('Treeview', font=('arial', 16))
+        style.configure('Treeview', font=('arial', 16), rowheight=35)
 
         treeview_frame = CTkFrame(self)
         treeview_frame.pack(fill='both', padx=10, pady=(0, 10), expand=False)

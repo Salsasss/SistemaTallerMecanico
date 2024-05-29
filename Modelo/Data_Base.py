@@ -20,7 +20,7 @@ class BaseModel_Names(Base):
     __abstract__ = True
     __allow_unmapped_ = True
 
-    RFC = Column(Integer, primary_key=True)
+    RFC = Column(String, primary_key=True)
     Nombre = Column(String)
     Apellido_Paterno = Column(String)
     Apellido_Materno = Column(String)

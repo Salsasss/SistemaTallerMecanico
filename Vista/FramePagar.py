@@ -23,7 +23,7 @@ class FramePagar(CTkFrame):
 
         style = ttk.Style()
         style.configure('Treeview.Heading', background='blue', foreground='white', font=('arial', 16, 'bold'), padding=8)
-        style.configure('Treeview', font=('arial', 16))
+        style.configure('Treeview', font=('arial', 16), rowheight=22)
 
         #Treeview 1
         cont_tree1 = CTkFrame(self)

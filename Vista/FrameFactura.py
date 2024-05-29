@@ -18,7 +18,7 @@ class FrameFactura(CTkFrame):
 
         style = ttk.Style()
         style.configure('Treeview.Heading', background='blue', foreground='white', font=('arial', 16, 'bold'), padding=8)
-        style.configure('Treeview', font=('arial', 16))
+        style.configure('Treeview', font=('arial', 16), rowheight=35)
 
         self.tree_cliente = Treeview(self, columns=("nombre", "direccion", "telefono"))
         self.tree_compra = Treeview(self, columns=("s/p", "cantidad", "precio"))
