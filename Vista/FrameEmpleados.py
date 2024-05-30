@@ -1,6 +1,6 @@
 from tkinter import ttk
 from customtkinter import *
-from Controlador.ctrlFunciones import color
+from Controlador.ctrlFunciones import *
 from Modelo.Data_Base import session, Empleado
 from Vista.FrameRegisEmpleado import FrameRegisEmpleado
 from Vista.MensajeEmergente import MensajeEmergente
@@ -52,7 +52,8 @@ class FrameEmpleados(CTkFrame):
 
         self.boton_reportes = CTkButton(cont_herramientas, text='Nuevo Empleado', text_color='white', font=('arial', 16, 'bold'), fg_color='#1e8b1e', command=lambda: self.accion_empleado(0))
         self.boton_reportes.pack(fill='x', side='left', ipady=5)
-        self.boton_reportes.bind('<Enter>', lambda event: color(event, boton=self.boton_reportes, color='#125412'))
+        self.boton_reportes.bind('<Enter>', lambda event: color_fg(event, boton=self.boton_reportes, color='#125412'))
+        self.boton_reportes.bind('<Leave>', lambda event: color_fg(event, boton=self.boton_reportes, color='#1e8b1e'))
 
     def accion_doble_click(self, e): # Editar empleado
         ans = MensajeEmergente(self, 'Acciones', '¿Editar Empleado?')

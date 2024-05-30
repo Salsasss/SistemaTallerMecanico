@@ -1,6 +1,6 @@
 from customtkinter import *
 from Controlador import ctrlFunciones
-from Controlador.ctrlFunciones import color
+from Controlador.ctrlFunciones import *
 
 class MensajeEmergente(CTkToplevel):
     def __init__(self, root, titulo, msg):
@@ -38,13 +38,13 @@ class MensajeEmergente(CTkToplevel):
 
         boton_no = CTkButton(cont_botones, width=100, text='No', fg_color='#b8161b', font=('arial', 14, 'bold'), command=self._no)
         boton_no.grid(row=0, column=0, padx=10)
-        boton_no.bind('<Enter>', lambda event: color(event, boton=boton_no, color='#891014'))
-        boton_no.bind('<Leave>', lambda event: color(event, boton=boton_no, color='#b8161b'))
+        boton_no.bind('<Enter>', lambda event: color_fg(event, boton=boton_no, color='#891014'))
+        boton_no.bind('<Leave>', lambda event: color_fg(event, boton=boton_no, color='#b8161b'))
 
         boton_si = CTkButton(cont_botones, width=100, text='Si', fg_color='#1e8b1e', font=('arial', 14, 'bold'), command=self._si)
         boton_si.grid(row=0, column=1, padx=10)
-        boton_si.bind('<Enter>', lambda event: color(event, boton=boton_si, color='#125412'))
-        boton_si.bind('<Leave>', lambda event: color(event, boton=boton_si, color='#1e8b1e'))
+        boton_si.bind('<Enter>', lambda event: color_fg(event, boton=boton_si, color='#125412'))
+        boton_si.bind('<Leave>', lambda event: color_fg(event, boton=boton_si, color='#1e8b1e'))
 
     def _cerrar(self):
         self.destroy()

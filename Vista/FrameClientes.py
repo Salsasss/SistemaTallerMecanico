@@ -38,9 +38,6 @@ class FrameClientes(CTkFrame):
         self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Teléfono'])
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
-        self.boton_reportes = CTkButton(cont_herramientas, text='Generar Reporte', text_color='white', font=('arial', 16, 'bold'), fg_color='blue')
-        self.boton_reportes.pack(fill='x', side='left', ipady=5)
-
     def _elementos_tabla(self):
         def actualizar_busqueda(*args):
             self.actualizar_treeview()
