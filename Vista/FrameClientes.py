@@ -1,6 +1,8 @@
 from tkinter import ttk
 from customtkinter import *
 from Modelo.Data_Base import session, Cliente
+from Vista.FrameRegisAutomovil import FrameRegisAutomovil
+from Vista.MensajeEmergente import MensajeEmergente
 
 class FrameClientes(CTkFrame):
     def __init__(self, root):
@@ -38,6 +40,21 @@ class FrameClientes(CTkFrame):
         self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Teléfono'])
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
+    def accion_automovil(self, rfc):
+        ventana_nuevo_auto = FrameRegisAutomovil(self, rfc)
+        ventana_nuevo_auto.geometry(f'+{(self.winfo_screenwidth()-1500 // 2)}+{(self.winfo_screenheight()-1500 // 2)}')
+        ventana_nuevo_auto.resizable(False, False)
+        ventana_nuevo_auto.grab_set()
+        ventana_nuevo_auto.bind('<Destroy>', self.actualizar_treeview)
+
+    def accion_doble_click(self, e): # Editar empleado
+        ans = MensajeEmergente(self, 'Acciones', '¿Desea agregar un Automovil al cliente?')
+        ans.mensaje_pregunta()
+        self.wait_window(ans)
+        if ans.ans:
+            rfc = self.serv.item(self.serv.selection()[0], 'text')
+            self.accion_automovil(rfc)
+
     def _elementos_tabla(self):
         def actualizar_busqueda(*args):
             self.actualizar_treeview()
@@ -52,6 +69,7 @@ class FrameClientes(CTkFrame):
 
         self.serv = ttk.Treeview(cont_tabla)
         self.serv.pack(fill='both', expand=True)
+        self.serv.bind('<Double-Button-1>', self.accion_doble_click)
 
         vscroll = ttk.Scrollbar(self.serv, orient='vertical', command=self.serv.yview)
         vscroll.pack(side='right', fill='y')
@@ -73,7 +91,7 @@ class FrameClientes(CTkFrame):
         self.texto_buscar.trace('w', actualizar_busqueda)
         self.buscar_por.trace('w', actualizar_busqueda)
 
-    def actualizar_treeview(self):
+    def actualizar_treeview(self, e=None):
         #Vaciando el Treeview de datos anteriores
         for item in self.serv.get_children():
             self.serv.delete(item)
@@ -94,7 +112,5 @@ class FrameClientes(CTkFrame):
             elif self.buscar_por.get() == '':
                 clientes = session.query(Cliente).all()
 
-        #print(self.texto_buscar.get())
-        #print(self.buscar_por.get())
         for cliente in clientes:
             self.serv.insert('', 'end', text=cliente.RFC, values=(cliente.Nombre, cliente.Apellido_Paterno, cliente.Apellido_Materno, cliente.Telefono))

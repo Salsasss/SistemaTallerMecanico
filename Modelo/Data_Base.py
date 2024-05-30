@@ -96,13 +96,14 @@ class Empleado(BaseModel_Names):
     __tablename__ = "empleado"
 
     Contrasenia = Column(String)
-    Puesto = Column(String)
+    Tipo = Column(String)
+    Estado = Column(Integer)
 
     # ------# Relacion con Mantenimiento #------#
     Maintenance = relationship(Mantenimiento)
 
     def __repr__(self):
-        return f"<Empleado\n RFC = {self.RFC} \n Nombre = '{self.Nombre}' \n Apellido Paterno = '{self.Apellido_Paterno}' \n Apellido Materno = '{self.Apellido_Materno}' \n Telefono = '{self.Telefono}' \n Puesto = {self.Puesto} \n> \n\n"
+        return f"<Empleado\n RFC = {self.RFC} \n Nombre = '{self.Nombre}' \n Apellido Paterno = '{self.Apellido_Paterno}' \n Apellido Materno = '{self.Apellido_Materno}' \n Telefono = '{self.Telefono}' \n Tipo = {self.Tipo} \n> \n\n"
 
 
 #------------------------# Spare parts / Refaction Bond (Class) #------------------------#

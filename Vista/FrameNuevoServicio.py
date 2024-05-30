@@ -67,9 +67,8 @@ class FrameNuevoServicio(CTkFrame):
             no_exterior=self.num_ext.get(),
         )
 
+        # -------------# Auto #-------------
         self.Insert_into_car = Vehiculo(
-
-            # -------------# Auto #-------------
             Marca=self.marca.get(),
             Modelo=self.modelo.get(),
             Anio=self.anio.get(),
@@ -84,13 +83,13 @@ class FrameNuevoServicio(CTkFrame):
         session.commit()
         MensajeEmergente(self, 'Exito', 'Servicio registrado Correctamente').mensaje_correcto()
 
-        entry_marca.delete(0, END)
-        entry_modelo.delete(0, END)
-        entry_anio.delete(0, END)
-        entry_motor.delete(0, END)
-        entry_km.delete(0, END)
-        entry_vin.delete(0, END)
-        entry_placas.delete(0, END)
+        self.marca.set('')
+        self.modelo.set('')
+        self.anio.set('')
+        self.motor.set('')
+        self.km.set('')
+        self.vin.set('')
+        self.placas.set('')
 
     def _agregar_auto(self):
         datos = [self.marca.get(), self.modelo.get(), self.anio.get(), self.motor.get(), self.km.get(), self.vin.get(), self.placas.get()]
@@ -98,7 +97,6 @@ class FrameNuevoServicio(CTkFrame):
             if dato == '':
                 MensajeEmergente(self, 'Error', 'Por favor. Llene los campos del Auto').mensaje_error()
                 return
-
 
         self.Insert_into_car = Vehiculo(
 
@@ -117,14 +115,6 @@ class FrameNuevoServicio(CTkFrame):
         session.add(self.add_car)
         session.commit()
         MensajeEmergente(self, 'Exito', 'Auto registrado Correctamente').mensaje_correcto()
-
-        entry_marca.delete(0, END)
-        entry_modelo.delete(0, END)
-        entry_anio.delete(0, END)
-        entry_motor.delete(0, END)
-        entry_km.delete(0, END)
-        entry_vin.delete(0, END)
-        entry_placas.delete(0, END)
 
     def _elementos_cliente(self):
         def elementos_persona(cont):
@@ -197,7 +187,6 @@ class FrameNuevoServicio(CTkFrame):
         CTkEntry(info_dir, width=200, font=('arial', 16), textvariable=self.num_ext).grid(row=4, column=1, padx=(0,20))
 
     def _elementos_auto(self):
-        global entry_marca, entry_modelo, entry_anio, entry_motor, entry_km, entry_vin, entry_placas
         info_auto_cont = CTkFrame(self)
         info_auto_cont.pack(fill='x', padx=10, pady=5, expand=False)
 
@@ -207,29 +196,27 @@ class FrameNuevoServicio(CTkFrame):
         CTkLabel(info_auto, text='Datos del Auto', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
 
         CTkLabel(info_auto, width=135, text='Marca: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=0, padx=5, pady=5)
-        entry_marca = CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.marca)
-        entry_marca.grid(row=1, column=1, padx=(0, 20))
+        CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.marca).grid(row=1, column=1, padx=(0, 20))
+
         CTkLabel(info_auto, width=135, text='Modelo: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=2, padx=5, pady=5)
-        entry_modelo = CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.modelo)
-        entry_modelo.grid(row=1, column=3, padx=(0,20))
+        CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.modelo).grid(row=1, column=3, padx=(0,20))
+
         CTkLabel(info_auto, width=135, text='Año: ', font=('arial', 16, 'bold'), anchor='e').grid(row=2, column=0, padx=5, pady=5)
-        entry_anio = CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.anio)
-        entry_anio.grid(row=2, column=1, padx=(0,20))
+        CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.anio).grid(row=2, column=1, padx=(0,20))
+
         CTkLabel(info_auto, width=135, text='Motor: ', font=('arial', 16, 'bold'), anchor='e').grid(row=2, column=2, padx=5, pady=5)
-        entry_motor = CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.motor)
-        entry_motor.grid(row=2, column=3, padx=(0,20))
+        CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.motor).grid(row=2, column=3, padx=(0,20))
+
         CTkLabel(info_auto, width=135, text='Kilometraje: ', font=('arial', 16, 'bold'), anchor='e').grid(row=3, column=0, padx=5, pady=5)
-        entry_km = CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.km)
-        entry_km.grid(row=3, column=1, padx=(0,20))
+        CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.km).grid(row=3, column=1, padx=(0,20))
+
         CTkLabel(info_auto, width=135, text='VIN: ', font=('arial', 16, 'bold'), anchor='e').grid(row=3, column=2, padx=5, pady=5)
-        entry_vin = CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.vin)
-        entry_vin.grid(row=3, column=3, padx=(0,20))
+        CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.vin).grid(row=3, column=3, padx=(0,20))
+
         CTkLabel(info_auto, width=135, text='Placas: ', font=('arial', 16, 'bold'), anchor='e').grid(row=4, column=0, padx=5, pady=5)
-        entry_placas = CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.placas)
-        entry_placas.grid(row=4, column=1, padx=(0,20))
+        CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.placas).grid(row=4, column=1, padx=(0,20))
 
     def _boton_submit(self):
         frm_botones = CTkFrame(self)
         frm_botones.pack(fill='x', padx=10, pady=5, expand=False)
         CTkButton(frm_botones, text='Guardar Servicio', font=('arial', 16, 'bold'), fg_color='blue', command=self._guardar_servicio).grid(row=0, column=1, padx=10, ipadx=5, ipady=5, sticky=E)
-        CTkButton(frm_botones, text='Agregar Auto', font=('arial', 16, 'bold'), fg_color='blue', command=self._agregar_auto).grid(row=0, column=0, padx=10, ipadx=5, ipady=5, sticky=E)

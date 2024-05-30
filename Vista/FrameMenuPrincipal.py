@@ -57,8 +57,8 @@ class FrameMenuPrincipal(CTkFrame):
         barra_opciones = CTkFrame(self, fg_color='blue', corner_radius=0)
         barra_opciones.pack(side=LEFT, fill='both', expand=False)
 
-        label_logo = CTkLabel(barra_opciones, image=leer_imagen('../media/logo.png', (125, 125)))
-        label_logo.grid(row=0, column=0, pady=20)
+        label_logo = CTkLabel(barra_opciones, text='', image=leer_imagen('../media/logo.png', (135, 135)))
+        label_logo.grid(row=0, column=0, pady=10)
 
         opc = ['🚗 Nuevo Servicio', '👤Clientes', '🔧 Automoviles', '👤 Empleados', 'pagar', 'admi', 'admi +']
         for i in range(len(opc)):

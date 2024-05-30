@@ -1,3 +1,5 @@
+import hashlib
+
 from customtkinter import CTkImage
 from PIL import Image
 
@@ -9,3 +11,8 @@ def color_fg(e, boton, color):
 
 def color_text(e, boton, color):
         boton.configure(text_color=color)
+
+def hashear(cadena):
+    objeto_hash = hashlib.sha256()
+    objeto_hash.update(cadena.encode())
+    return objeto_hash.hexdigest()

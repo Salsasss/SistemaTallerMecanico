@@ -1,5 +1,6 @@
 from customtkinter import *
 from Controlador import ctrlFunciones
+from Controlador.ctrlFunciones import hashear
 from Modelo.Data_Base import session, Empleado
 from Vista.FrameMenuPrincipal import FrameMenuPrincipal
 from Vista.MensajeEmergente import MensajeEmergente
@@ -21,6 +22,10 @@ class Login(CTk):
         self.session_empleado['nombre'] = 'empleado.Nombre'
         self.session_empleado['logeado'] = True
 
+        self.cont_login = CTkFrame(self, fg_color='blue', corner_radius=20)
+        self.cont_login.grid(row=0, column=0, ipady=20, pady=(0, 20))
+
+        # Iniciando sesion
         self.withdraw()
         menu_principal = CTkToplevel()
         menu_principal.session_empleado = self.session_empleado
@@ -29,8 +34,6 @@ class Login(CTk):
             f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
         FrameMenuPrincipal(menu_principal).pack(fill='both', expand=True)
 
-        self.cont_login = CTkFrame(self, fg_color='blue', corner_radius=20)
-        self.cont_login.grid(row=0, column=0, ipady=20, pady=(0, 20))
 
         self.rfc = StringVar()
         self.contra = StringVar()
@@ -41,20 +44,23 @@ class Login(CTk):
 
     def _loggearse(self):
         if self.rfc.get()!='' and self.contra.get()!='':
-            empleado = session.query(Empleado).filter(Empleado.RFC==self.rfc.get(), Empleado.Contrasenia==self.contra.get(),).first()
+            empleado = session.query(Empleado).filter(Empleado.RFC==self.rfc.get(), Empleado.Contrasenia==hashear(self.contra.get())).first()
             if empleado:
-                # Guardando la sesion
-                self.session_empleado['rfc'] = self.rfc.get()
-                self.session_empleado['nombre'] = empleado.Nombre
-                self.session_empleado['logeado'] = True
+                if empleado.Estado==1: # Solo si el empleado esta Activo
+                    # Guardando la sesion
+                    self.session_empleado['rfc'] = self.rfc.get()
+                    self.session_empleado['nombre'] = empleado.Nombre
+                    self.session_empleado['logeado'] = True
 
-                # Iniciando sesion
-                self.withdraw()
-                menu_principal = CTkToplevel()
-                menu_principal.session_empleado = self.session_empleado
-                menu_principal.title('Sistema Taller Mecánico')
-                menu_principal.geometry(f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
-                FrameMenuPrincipal(menu_principal).pack(fill='both', expand=True)
+                    # Iniciando sesion
+                    self.withdraw()
+                    menu_principal = CTkToplevel()
+                    menu_principal.session_empleado = self.session_empleado
+                    menu_principal.title('Sistema Taller Mecánico')
+                    menu_principal.geometry(f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
+                    FrameMenuPrincipal(menu_principal).pack(fill='both', expand=True)
+                else:
+                    MensajeEmergente(self, 'Error', 'Empleado dado de baja').mensaje_error()
             else:
                 MensajeEmergente(self, 'Error', 'RFC o contraseña Incorrectos').mensaje_error()
         else:

@@ -41,7 +41,7 @@ class FrameAutomoviles(CTkFrame):
         self.buscar.bind('<KeyRelease>', poner_placeholder)
         self.texto_buscar.set('Buscar')
 
-        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['VIN', 'Marca', 'Año', 'Kilometraje', 'Placa', 'Modelo', 'Motor', 'Estatus'])
+        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC Cliente', 'VIN', 'Marca', 'Año', 'Kilometraje', 'Placa', 'Modelo', 'Motor', 'Estatus'])
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
         self.boton_reportes = CTkButton(cont_herramientas, text='Generar Reporte', text_color='white', font=('arial', 16, 'bold'), fg_color='blue')
@@ -55,6 +55,8 @@ class FrameAutomoviles(CTkFrame):
             #Borrar todo del frame
             for widget in self.root.pack_slaves():
                 widget.pack_forget()
+            vin = self.serv.item(self.serv.selection()[0], 'text')
+            print(vin)
             FrameCataRefacciones(self.root).pack(padx=10, pady=10, fill='both', expand=True)
 
     def _elementos_tabla(self):
@@ -77,24 +79,26 @@ class FrameAutomoviles(CTkFrame):
         vscroll.pack(side='right', fill='y')
         self.serv.configure(yscrollcommand=vscroll.set)
 
-        self.serv['columns'] = ('1', '2', '3', '4', '5', '6', '7')
+        self.serv['columns'] = ('1', '2', '3', '4', '5', '6', '7', '8')
         self.serv.column('#0', anchor=CENTER, width=120)
-        self.serv.column('1', anchor=CENTER, width=100)
+        self.serv.column('1', anchor=CENTER, width=120)
         self.serv.column('2', anchor=CENTER, width=40)
-        self.serv.column('3', anchor=CENTER, width=100)
+        self.serv.column('3', anchor=CENTER, width=40)
         self.serv.column('4', anchor=CENTER, width=100)
         self.serv.column('5', anchor=CENTER, width=100)
         self.serv.column('6', anchor=CENTER, width=100)
         self.serv.column('7', anchor=CENTER, width=100)
+        self.serv.column('8', anchor=CENTER, width=100)
 
-        self.serv.heading('#0', text='VIN')
-        self.serv.heading('1', text='Marca')
-        self.serv.heading('2', text='Año')
-        self.serv.heading('3', text='Kilometraje')
-        self.serv.heading('4', text='Placa')
-        self.serv.heading('5', text='Modelo')
-        self.serv.heading('6', text='Motor')
-        self.serv.heading('7', text='Estatus')
+        self.serv.heading('#0', text='RFC Cliente')
+        self.serv.heading('1', text='VIN')
+        self.serv.heading('2', text='Marca')
+        self.serv.heading('3', text='Año')
+        self.serv.heading('4', text='Kilometraje')
+        self.serv.heading('5', text='Placa')
+        self.serv.heading('6', text='Modelo')
+        self.serv.heading('7', text='Motor')
+        self.serv.heading('8', text='Estatus')
 
         self.texto_buscar.trace('w', actualizar_busqueda)
         self.buscar_por.trace('w', actualizar_busqueda)
@@ -107,6 +111,8 @@ class FrameAutomoviles(CTkFrame):
         if self.texto_buscar.get() == 'Buscar':
             vehiculos = session.query(Vehiculo).all()
         else:
+            if self.buscar_por.get() == 'RFC Cliente':
+                vehiculos = session.query(Vehiculo).filter(Vehiculo.RFC_Cliente.like(f'%{self.texto_buscar.get()}%'))
             if self.buscar_por.get() == 'VIN':
                 vehiculos = session.query(Vehiculo).filter(Vehiculo.VIN.like(f'%{self.texto_buscar.get()}%'))
             elif self.buscar_por.get() == 'Marca':
@@ -124,7 +130,5 @@ class FrameAutomoviles(CTkFrame):
             elif self.buscar_por.get() == '':
                 vehiculos = session.query(Vehiculo).all()
 
-        print(self.texto_buscar.get())
-        print(self.buscar_por.get())
         for vehiculo in vehiculos:
-            self.serv.insert('', 'end', text=vehiculo.VIN, values=(vehiculo.Marca, vehiculo.Anio, vehiculo.Kilometraje, vehiculo.Placa, vehiculo.Modelo, vehiculo.Motor))
+            self.serv.insert('', 'end', text=f'{vehiculo.RFC_Cliente}', values=(vehiculo.VIN, vehiculo.Marca, vehiculo.Anio, vehiculo.Kilometraje, vehiculo.Placa, vehiculo.Modelo, vehiculo.Motor))

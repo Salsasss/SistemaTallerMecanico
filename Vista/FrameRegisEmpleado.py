@@ -1,5 +1,7 @@
 from customtkinter import *
 from PIL import Image
+
+from Controlador.ctrlFunciones import hashear
 from Modelo.Data_Base import Empleado, session
 from tkinter import BooleanVar
 from Vista.MensajeEmergente import MensajeEmergente
@@ -8,11 +10,12 @@ class FrameRegisEmpleado(CTkToplevel):
     def __init__(self, root, accion, rfc=''): #0 -> Nuevo Empleado, 1 -> Editar Empleado
         super().__init__(root)
         self.root = root
+        self.rfc_buscar = rfc
+
         self.title('Nuevo Empleado')
         CTkLabel(self, text='Datos del Empleado', font=('arial', 25, 'bold')).pack(pady=(0, 5), ipady=10)
 
         self.accion = accion
-        self.rfc_buscar = rfc
 
         self.show = BooleanVar()
 
@@ -21,7 +24,7 @@ class FrameRegisEmpleado(CTkToplevel):
         self.apellido_paterno = StringVar()
         self.apellido_materno = StringVar()
         self.telefono = StringVar()
-        self.puesto = StringVar()
+        self.tipo = StringVar()
         self.contrasenia = StringVar()
         self.mostrar_contrasenia = BooleanVar()
         self.original_rfc = None  # Variable para almacenar el RFC original
@@ -63,8 +66,8 @@ class FrameRegisEmpleado(CTkToplevel):
         CTkLabel(info_usuario, width=135, text='Teléfono: ', font=('arial', 16, 'bold'), anchor='e').grid(row=5, column=1, padx=10, pady=5)
         CTkEntry(info_usuario, width=200, font=('arial', 16), textvariable=self.telefono).grid(row=5, column=2, padx=(0, 10))
 
-        CTkLabel(info_usuario, width=135, text='Puesto: ', font=('arial', 16, 'bold'), anchor='e').grid(row=6, column=1, padx=10, pady=5)
-        CTkEntry(info_usuario, width=200, font=('arial', 16), textvariable=self.puesto).grid(row=6, column=2, padx=(0, 10))
+        CTkLabel(info_usuario, width=135, text='Tipo: ', font=('arial', 16, 'bold'), anchor='e').grid(row=6, column=1, padx=10, pady=5)
+        CTkEntry(info_usuario, width=200, font=('arial', 16), textvariable=self.tipo).grid(row=6, column=2, padx=(0, 10))
 
         CTkLabel(info_usuario, width=135, text='Contraseña: ', font=('arial', 16, 'bold'), anchor='e').grid(row=7, column=1, padx=10, pady=5)
         check_show = CTkCheckBox(info_usuario, text='Mostrar', font=('arial', 16, 'bold'), variable=self.show)
@@ -81,7 +84,7 @@ class FrameRegisEmpleado(CTkToplevel):
 
         CTkButton(buttons_frame, text='Guardar', text_color='white', fg_color='green', font=('arial', 16, 'bold'), command=self.guardar_empleado).pack(side='left', padx=10, pady=5)
         if self.accion==1: # Editar empleado
-            CTkButton(buttons_frame, text='Eliminar', text_color='white', fg_color='red', font=('arial', 16, 'bold'), command=self.eliminar_empleado).pack(side='left', padx=10, pady=5)
+            CTkButton(buttons_frame, text='Dar de Baja', text_color='white', fg_color='red', font=('arial', 16, 'bold'), command=self.baja_empleado).pack(side='left', padx=10, pady=5)
 
     def buscar_empleado(self):
         empleado = session.query(Empleado).filter(Empleado.RFC == self.rfc_buscar).first()
@@ -91,7 +94,7 @@ class FrameRegisEmpleado(CTkToplevel):
             self.apellido_paterno.set(empleado.Apellido_Paterno)
             self.apellido_materno.set(empleado.Apellido_Materno)
             self.telefono.set(empleado.Telefono)
-            self.puesto.set(empleado.Puesto)
+            self.tipo.set(empleado.Tipo)
             self.contrasenia.set(empleado.Contrasenia)
             self.original_rfc = self.rfc_buscar
         else:
@@ -104,13 +107,14 @@ class FrameRegisEmpleado(CTkToplevel):
                 MensajeEmergente(self, 'Error', 'El Empleado ya existe').mensaje_error()
             else:
                 new_empleado = Empleado(
+                    Estado=1,
                     RFC=self.rfc.get(),
                     Nombre=self.nombre.get(),
                     Apellido_Paterno=self.apellido_paterno.get(),
                     Apellido_Materno=self.apellido_materno.get(),
                     Telefono=self.telefono.get(),
-                    Puesto=self.puesto.get(),
-                    Contrasenia=self.contrasenia.get()
+                    Tipo=self.tipo.get(),
+                    Contrasenia=hashear(self.contrasenia.get())
                 )
                 session.add(new_empleado)
                 session.commit()
@@ -124,21 +128,21 @@ class FrameRegisEmpleado(CTkToplevel):
                 empleado.Apellido_Paterno = self.apellido_paterno.get()
                 empleado.Apellido_Materno = self.apellido_materno.get()
                 empleado.Telefono = self.telefono.get()
-                empleado.Puesto = self.puesto.get()
+                empleado.Tipo = self.tipo.get()
                 empleado.Contrasenia = self.contrasenia.get()
                 session.commit()
                 MensajeEmergente(self, 'Exito', '¡Empleado modificado con éxito!').mensaje_correcto()
 
-    def eliminar_empleado(self):
+    def baja_empleado(self):
         empleado = session.query(Empleado).filter(Empleado.RFC == self.rfc_buscar).first()
         if empleado:
-            ans = MensajeEmergente(self, 'Eliminar Empleado', '¿Esta seguro que desea eliminar al empleado?')
+            ans = MensajeEmergente(self, 'Dar de Baja Empleado', '¿Esta seguro que desea dar de baja al empleado?')
             ans.mensaje_pregunta()
             self.wait_window(ans)
             if ans.ans:
-                session.delete(empleado)
+                empleado.Estado = 0 # Inactivo
                 session.commit()
-                MensajeEmergente(self.root, 'Exito', '¡Empleado eliminado  con éxito!').mensaje_correcto()
+                MensajeEmergente(self.root, 'Exito', '¡Empleado dado de baja con éxito!').mensaje_correcto()
                 self.destroy()
         else:
             MensajeEmergente(self, 'Error', 'Empleado no encontrado').mensaje_error()
@@ -149,6 +153,6 @@ class FrameRegisEmpleado(CTkToplevel):
         self.apellido_paterno.set('')
         self.apellido_materno.set('')
         self.telefono.set('')
-        self.puesto.set('')
+        self.tipo.set('')
         self.contrasenia.set('')
         self.original_rfc = None  # Limpiar el RFC original
