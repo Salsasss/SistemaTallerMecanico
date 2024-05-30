@@ -17,6 +17,18 @@ class Login(CTk):
 
         self.columnconfigure(0, weight=1)
 
+        self.session_empleado['rfc'] = 'self.rfc.get()'
+        self.session_empleado['nombre'] = 'empleado.Nombre'
+        self.session_empleado['logeado'] = True
+
+        self.withdraw()
+        menu_principal = CTkToplevel()
+        menu_principal.session_empleado = self.session_empleado
+        menu_principal.title('Sistema Taller Mecánico')
+        menu_principal.geometry(
+            f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
+        FrameMenuPrincipal(menu_principal).pack(fill='both', expand=True)
+
         self.cont_login = CTkFrame(self, fg_color='blue', corner_radius=20)
         self.cont_login.grid(row=0, column=0, ipady=20, pady=(0, 20))
 
