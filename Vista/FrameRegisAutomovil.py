@@ -1,5 +1,5 @@
 from customtkinter import *
-from Modelo.Data_Base import Vehiculo, session
+from Data_Base import Vehiculo, session
 from Vista.MensajeEmergente import MensajeEmergente
 
 class FrameRegisAutomovil(CTkToplevel):
@@ -54,6 +54,14 @@ class FrameRegisAutomovil(CTkToplevel):
         CTkButton(buttons_frame, text='Guardar', text_color='white', fg_color='green', font=('arial', 16, 'bold'), command=self.guardar_automovil).pack(side='left', padx=10, pady=5)
 
     def guardar_automovil(self):
+        #Revisar que todos los campos esten llenos
+        datos = [self.marca.get(), self.modelo.get(), self.anio.get(), self.motor.get(), self.km.get(), self.vin.get(), self.placas.get()]
+
+        for dato in datos:
+            if dato == '':
+                MensajeEmergente(self, 'Error', 'Por favor. Llene todos los campos').mensaje_error()
+                return
+
         # Nuevo Automovil
         if session.query(Vehiculo).filter(Vehiculo.VIN == self.vin.get()).first():
             MensajeEmergente(self, 'Error', 'El Vehiculo ya existe').mensaje_error()

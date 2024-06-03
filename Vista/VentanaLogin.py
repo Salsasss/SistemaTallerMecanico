@@ -1,7 +1,7 @@
 from customtkinter import *
 from Controlador import ctrlFunciones
 from Controlador.ctrlFunciones import hashear
-from Modelo.Data_Base import session, Empleado
+from Data_Base import session, Empleado
 from Vista.FrameMenuPrincipal import FrameMenuPrincipal
 from Vista.MensajeEmergente import MensajeEmergente
 
@@ -17,6 +17,8 @@ class Login(CTk):
         self.resizable(False, False)
 
         self.columnconfigure(0, weight=1)
+
+
 
         self.session_empleado['rfc'] = 'self.rfc.get()'
         self.session_empleado['nombre'] = 'empleado.Nombre'

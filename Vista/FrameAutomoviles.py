@@ -1,6 +1,6 @@
 from tkinter import ttk
 from customtkinter import *
-from Modelo.Data_Base import session, Vehiculo
+from Data_Base import session, Vehiculo
 from Vista.FrameCataRefacciones import FrameCataRefacciones
 from Vista.MensajeEmergente import MensajeEmergente
 
@@ -44,9 +44,6 @@ class FrameAutomoviles(CTkFrame):
         self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC Cliente', 'VIN', 'Marca', 'Año', 'Kilometraje', 'Placa', 'Modelo', 'Motor', 'Estatus'])
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
-        self.boton_reportes = CTkButton(cont_herramientas, text='Generar Reporte', text_color='white', font=('arial', 16, 'bold'), fg_color='blue')
-        self.boton_reportes.pack(fill='x', side='left', ipady=5)
-
     def accion_doble_click(self, e):
         ans = MensajeEmergente(self, 'Servicio', '¿Desea completar el servicio?')
         ans.mensaje_pregunta()
@@ -74,6 +71,10 @@ class FrameAutomoviles(CTkFrame):
         self.serv = ttk.Treeview(cont_tabla)
         self.serv.pack(fill='both', expand=True)
         self.serv.bind('<Double-Button-1>', self.accion_doble_click)
+
+        # Colores de las filas
+        self.serv.tag_configure('verde', background='#aaeeaa')
+        self.serv.tag_configure('amarillo', background='#dfff80')
 
         vscroll = ttk.Scrollbar(self.serv, orient='vertical', command=self.serv.yview)
         vscroll.pack(side='right', fill='y')
@@ -103,6 +104,8 @@ class FrameAutomoviles(CTkFrame):
         self.texto_buscar.trace('w', actualizar_busqueda)
         self.buscar_por.trace('w', actualizar_busqueda)
 
+        CTkLabel(self, text='ℹ️Doble click para completar servicio', font=('arial', 18, 'bold')).pack(fill='x', side='left', padx=10, pady=5)
+
     def actualizar_treeview(self):
         # Vaciando el Treeview de datos anteriores
         for item in self.serv.get_children():
@@ -130,5 +133,11 @@ class FrameAutomoviles(CTkFrame):
             elif self.buscar_por.get() == '':
                 vehiculos = session.query(Vehiculo).all()
 
+        i=0
         for vehiculo in vehiculos:
-            self.serv.insert('', 'end', text=f'{vehiculo.RFC_Cliente}', values=(vehiculo.VIN, vehiculo.Marca, vehiculo.Anio, vehiculo.Kilometraje, vehiculo.Placa, vehiculo.Modelo, vehiculo.Motor))
+            if i%2==0:
+                self.serv.insert('', 'end', text=f'{vehiculo.RFC_Cliente}', values=(vehiculo.VIN, vehiculo.Marca, vehiculo.Anio, vehiculo.Kilometraje, vehiculo.Placa, vehiculo.Modelo, vehiculo.Motor), tags=['verde'])
+            else:
+                self.serv.insert('', 'end', text=f'{vehiculo.RFC_Cliente}', values=(vehiculo.VIN, vehiculo.Marca, vehiculo.Anio, vehiculo.Kilometraje, vehiculo.Placa, vehiculo.Modelo, vehiculo.Motor), tags=['amarillo'])
+
+            i+=1

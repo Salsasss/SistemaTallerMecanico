@@ -1,7 +1,7 @@
 from tkinter import ttk
 from customtkinter import *
 from Controlador.ctrlFunciones import *
-from Modelo.Data_Base import session, Empleado
+from Data_Base import session, Empleado
 from Vista.FrameRegisEmpleado import FrameRegisEmpleado
 from Vista.MensajeEmergente import MensajeEmergente
 
@@ -71,7 +71,7 @@ class FrameEmpleados(CTkFrame):
         def actualizar_busqueda(*args):
             self.actualizar_treeview()
 
-        cont_tabla = CTkFrame(self, fg_color='red')
+        cont_tabla = CTkFrame(self)
         cont_tabla.pack(fill='both', padx=10, pady=(0, 50), expand=True)
 
         style = ttk.Style()
@@ -82,6 +82,10 @@ class FrameEmpleados(CTkFrame):
         self.serv = ttk.Treeview(cont_tabla)
         self.serv.pack(fill='both', expand=True)
         self.serv.bind('<Double-Button-1>', self.accion_doble_click)
+
+        # Colores de las filas
+        self.serv.tag_configure('verde', background='#aaeeaa')
+        self.serv.tag_configure('rojo', background='#f4a4a6')
 
         vscroll = ttk.Scrollbar(self.serv, orient='vertical', command=self.serv.yview)
         vscroll.pack(side='right', fill='y')
@@ -106,6 +110,8 @@ class FrameEmpleados(CTkFrame):
 
         self.texto_buscar.trace('w', actualizar_busqueda)
         self.buscar_por.trace('w', actualizar_busqueda)
+
+        CTkLabel(self, text='ℹ️Doble click para editar empleado', font=('arial', 18, 'bold')).pack(fill='x', side='left', padx=10, pady=5)
 
     def actualizar_treeview(self, e=None):
         # Vaciando el Treeview de datos anteriores
@@ -142,4 +148,7 @@ class FrameEmpleados(CTkFrame):
                 empleados = session.query(Empleado).all()
 
         for empleado in empleados:
-            self.serv.insert('', 'end', text=f'{self.estados[empleado.Estado]}', values=(empleado.RFC, empleado.Nombre, empleado.Apellido_Paterno, empleado.Apellido_Materno, empleado.Telefono, empleado.Tipo))
+            if empleado.Estado==1: #Empleado Activo
+                self.serv.insert('', 'end', text=f'{self.estados[empleado.Estado]}', values=(empleado.RFC, empleado.Nombre, empleado.Apellido_Paterno, empleado.Apellido_Materno, empleado.Telefono, empleado.Tipo), tags=['verde'])
+            elif empleado.Estado==0: #Empleado Inactivo
+                self.serv.insert('', 'end', text=f'{self.estados[empleado.Estado]}', values=(empleado.RFC, empleado.Nombre, empleado.Apellido_Paterno, empleado.Apellido_Materno, empleado.Telefono, empleado.Tipo), tags=['rojo'])

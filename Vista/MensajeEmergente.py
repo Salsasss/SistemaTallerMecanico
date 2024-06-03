@@ -7,6 +7,7 @@ class MensajeEmergente(CTkToplevel):
         super().__init__(root, fg_color='#dbdbdb')
         self.title(titulo)
         self.geometry(f'+{(self.winfo_screenwidth() // 2)}+{(self.winfo_screenheight() // 2)}')
+        self.resizable(False, False)
         self.grab_set()
 
         self.ans = None

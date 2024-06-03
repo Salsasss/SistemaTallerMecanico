@@ -1,8 +1,7 @@
 from customtkinter import *
-from PIL import Image
 
 from Controlador.ctrlFunciones import hashear
-from Modelo.Data_Base import Empleado, session
+from Data_Base import Empleado, session
 from tkinter import BooleanVar
 from Vista.MensajeEmergente import MensajeEmergente
 
@@ -69,7 +68,11 @@ class FrameRegisEmpleado(CTkToplevel):
         CTkLabel(info_usuario, width=135, text='Tipo: ', font=('arial', 16, 'bold'), anchor='e').grid(row=6, column=1, padx=10, pady=5)
         CTkEntry(info_usuario, width=200, font=('arial', 16), textvariable=self.tipo).grid(row=6, column=2, padx=(0, 10))
 
-        CTkLabel(info_usuario, width=135, text='Contraseña: ', font=('arial', 16, 'bold'), anchor='e').grid(row=7, column=1, padx=10, pady=5)
+        txt_contra = 'Contraseña:'
+        if self.accion==1: # Editar empleado
+            txt_contra = 'Nueva Contraseña:'
+
+        CTkLabel(info_usuario, width=135, text=txt_contra, font=('arial', 16, 'bold'), anchor='e').grid(row=7, column=1, padx=10, pady=5)
         check_show = CTkCheckBox(info_usuario, text='Mostrar', font=('arial', 16, 'bold'), variable=self.show)
         check_show.bind('<ButtonPress-1>', show)
         check_show.bind('<ButtonRelease-1>', unshow)
@@ -95,12 +98,19 @@ class FrameRegisEmpleado(CTkToplevel):
             self.apellido_materno.set(empleado.Apellido_Materno)
             self.telefono.set(empleado.Telefono)
             self.tipo.set(empleado.Tipo)
-            self.contrasenia.set(empleado.Contrasenia)
             self.original_rfc = self.rfc_buscar
         else:
             MensajeEmergente(self, 'Error', 'Empleado no encontrado').mensaje_error()
 
     def guardar_empleado(self):
+        #Revisar que todos los campos esten llenos
+        datos = [self.rfc.get(), self.nombre.get(), self.apellido_paterno.get(), self.apellido_materno.get(), self.telefono.get(), self.tipo, self.contrasenia.get()]
+
+        for dato in datos:
+            if dato == '':
+                MensajeEmergente(self, 'Error', 'Por favor. Llene todos los campos').mensaje_error()
+                return
+
         if self.accion==0:
             # Nuevo empleado
             if session.query(Empleado).filter(Empleado.RFC == self.rfc.get()).first():
@@ -129,7 +139,8 @@ class FrameRegisEmpleado(CTkToplevel):
                 empleado.Apellido_Materno = self.apellido_materno.get()
                 empleado.Telefono = self.telefono.get()
                 empleado.Tipo = self.tipo.get()
-                empleado.Contrasenia = self.contrasenia.get()
+                if self.contrasenia.get()!='':
+                    empleado.Contrasenia = self.contrasenia.get()
                 session.commit()
                 MensajeEmergente(self, 'Exito', '¡Empleado modificado con éxito!').mensaje_correcto()
 

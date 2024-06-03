@@ -1,6 +1,7 @@
 from customtkinter import *
+from Controlador.ctrlFunciones import color_fg
 from Vista.MensajeEmergente import MensajeEmergente
-from Modelo.Data_Base import session, Cliente, Vehiculo
+from Data_Base import session, Cliente, Vehiculo
 
 class FrameNuevoServicio(CTkFrame):
     def __init__(self, root):
@@ -36,6 +37,7 @@ class FrameNuevoServicio(CTkFrame):
         self._boton_submit()
 
     def _guardar_servicio(self):
+        #Revisar que todos los campos esten llenos
         datos = [self.nombre.get(), self.ap_paterno.get(), self.ap_materno.get(), self.telefono.get(), self.rfc.get(), self.estado.get(), self.ciudad.get(), self.colonia.get(), self.cp.get(), self.calle.get(), self.num_int.get(), self.num_ext.get(), self.marca.get(), self.modelo.get(), self.anio.get(), self.motor.get(), self.km.get(), self.vin.get(), self.placas.get()]
         if self.tipo_cliente.get()=='1':
             del datos[1]
@@ -48,40 +50,59 @@ class FrameNuevoServicio(CTkFrame):
 
         # ---------------# Inserts #---------------
 
-        self.Insert_into_client = Cliente(
+        try:
+            self.Insert_into_client = Cliente(
+                # -------------# Cliente #-------------
+                Nombre=self.nombre.get(),
+                Apellido_Paterno=self.ap_paterno.get(),
+                Apellido_Materno=self.ap_materno.get(),
+                Telefono=self.telefono.get(),
+                RFC=self.rfc.get(),
 
-            # -------------# Cliente #-------------
-            Nombre=self.nombre.get(),
-            Apellido_Paterno=self.ap_paterno.get(),
-            Apellido_Materno=self.ap_materno.get(),
-            Telefono=self.telefono.get(),
-            RFC=self.rfc.get(),
+                # -------------# Direccion #-------------
+                Estado=self.estado.get(),
+                Ciudad=self.ciudad.get(),
+                Colonia=self.colonia.get(),
+                Codigo_Postal=self.cp.get(),
+                Calle=self.calle.get(),
+                no_interior=self.num_int.get(),
+                no_exterior=self.num_ext.get(),
+            )
+        except Exception as e:
+            MensajeEmergente(self, 'Error', 'Error al guardar el Cliente').mensaje_error()
 
-            # -------------# Direccion #-------------
-            Estado=self.estado.get(),
-            Ciudad=self.ciudad.get(),
-            Colonia=self.colonia.get(),
-            Codigo_Postal=self.cp.get(),
-            Calle=self.calle.get(),
-            no_interior=self.num_int.get(),
-            no_exterior=self.num_ext.get(),
-        )
-
-        # -------------# Auto #-------------
-        self.Insert_into_car = Vehiculo(
-            Marca=self.marca.get(),
-            Modelo=self.modelo.get(),
-            Anio=self.anio.get(),
-            Motor=self.motor.get(),
-            Kilometraje=self.km.get(),
-            VIN=self.vin.get(),
-            Placa=self.placas.get()
-        )
+        try:
+            # -------------# Auto #-------------
+            self.Insert_into_car = Vehiculo(
+                Marca=self.marca.get(),
+                Modelo=self.modelo.get(),
+                Anio=self.anio.get(),
+                Motor=self.motor.get(),
+                Kilometraje=self.km.get(),
+                VIN=self.vin.get(),
+                Placa=self.placas.get()
+            )
+        except Exception as e:
+            MensajeEmergente(self, 'Error', 'Error al guardar el Automovil').mensaje_error()
 
         self.Insert_into_client.vehicle.append(self.Insert_into_car)
         session.add(self.Insert_into_client)
         session.commit()
         MensajeEmergente(self, 'Exito', 'Servicio registrado Correctamente').mensaje_correcto()
+
+        self.nombre.set('')
+        self.ap_paterno.set('')
+        self.ap_materno.set('')
+        self.telefono.set('')
+        self.rfc.set('')
+
+        self.estado.set('')
+        self.ciudad.set('')
+        self.colonia.set('')
+        self.cp.set('')
+        self.calle.set('')
+        self.num_int.set('')
+        self.num_ext.set('')
 
         self.marca.set('')
         self.modelo.set('')
@@ -90,31 +111,6 @@ class FrameNuevoServicio(CTkFrame):
         self.km.set('')
         self.vin.set('')
         self.placas.set('')
-
-    def _agregar_auto(self):
-        datos = [self.marca.get(), self.modelo.get(), self.anio.get(), self.motor.get(), self.km.get(), self.vin.get(), self.placas.get()]
-        for dato in datos:
-            if dato == '':
-                MensajeEmergente(self, 'Error', 'Por favor. Llene los campos del Auto').mensaje_error()
-                return
-
-        self.Insert_into_car = Vehiculo(
-
-            # -------------# Auto #-------------
-            Marca=self.marca.get(),
-            Modelo=self.modelo.get(),
-            Anio=self.anio.get(),
-            Motor=self.motor.get(),
-            Kilometraje=self.km.get(),
-            VIN=self.vin.get(),
-            Placa=self.placas.get()
-        )
-
-        self.add_car = session.query(Cliente).filter_by(RFC = self.rfc.get()).one_or_none()
-        self.add_car.vehicle.append(self.Insert_into_car)
-        session.add(self.add_car)
-        session.commit()
-        MensajeEmergente(self, 'Exito', 'Auto registrado Correctamente').mensaje_correcto()
 
     def _elementos_cliente(self):
         def elementos_persona(cont):
@@ -217,6 +213,9 @@ class FrameNuevoServicio(CTkFrame):
         CTkEntry(info_auto, width=200, font=('arial', 16), textvariable=self.placas).grid(row=4, column=1, padx=(0,20))
 
     def _boton_submit(self):
-        frm_botones = CTkFrame(self)
+        frm_botones = CTkFrame(self, fg_color='white')
         frm_botones.pack(fill='x', padx=10, pady=5, expand=False)
-        CTkButton(frm_botones, text='Guardar Servicio', font=('arial', 16, 'bold'), fg_color='blue', command=self._guardar_servicio).grid(row=0, column=1, padx=10, ipadx=5, ipady=5, sticky=E)
+        boton_submit = CTkButton(frm_botones, text='Guardar Servicio', font=('arial', 16, 'bold'), fg_color='#1e8b1e', command=self._guardar_servicio)
+        boton_submit.pack(side='right', ipadx=5, ipady=5)
+        boton_submit.bind('<Enter>', lambda event: color_fg(event, boton=boton_submit, color='#125412'))
+        boton_submit.bind('<Leave>', lambda event: color_fg(event, boton=boton_submit, color='#1e8b1e'))

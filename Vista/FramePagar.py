@@ -2,11 +2,15 @@ from tkinter.ttk import Treeview
 from tkinter import messagebox, ttk
 from customtkinter import *
 from tkinter import *
+
+from Controlador.ctrlFunciones import color_fg
+from Vista.FrameAutomoviles import FrameAutomoviles
 from Vista.MensajeEmergente import MensajeEmergente
 
 class FramePagar(CTkFrame):
     def __init__(self, root):
         super().__init__(root)
+        self.root = root
         CTkLabel(self, text='Pagar', font=('arial', 25, 'bold')).pack(fill='x', pady=(10, 0))
         #CTkLabel(self, text='Pagar', font=('arial', 25, 'bold')).grid(row=0, column=0)
         self.txt_compra = StringVar()
@@ -78,9 +82,15 @@ class FramePagar(CTkFrame):
         #cont_botones.grid(row=6, column=0, padx=5, pady=5, columnspan=2)
         cont_botones.pack(padx=5, pady=5)
 
-        CTkButton(cont_botones, text='Cancelar', font=('arial', 16, 'bold'), fg_color='blue', command=self.cancel).grid(row=0, column=0, padx=15, pady=5, ipadx=5, ipady=5)
-        CTkButton(cont_botones, text='Comprar', font=('arial', 16, 'bold'), fg_color='blue', command=self.pagar).grid(row=0, column=1, padx=15, pady=5, ipadx=5, ipady=5)
-        CTkButton(cont_botones, text='Facturar', font=('arial', 16, 'bold'), fg_color='blue').grid(row=0, column=2, padx=5, pady=5, ipadx=15, ipady=5)
+        boton_cancelar = CTkButton(cont_botones, text='Cancelar', fg_color='#b8161b', font=('arial', 16, 'bold'), command=self.cancel)
+        boton_cancelar.bind('<Enter>', lambda event: color_fg(event, boton=boton_cancelar, color='#891014'))
+        boton_cancelar.bind('<Leave>', lambda event: color_fg(event, boton=boton_cancelar, color='#b8161b'))
+        boton_cancelar.grid(row=0, column=0, padx=15, pady=5, ipadx=5, ipady=5)
+
+        boton_completar = CTkButton(cont_botones, text='Completar Compra', fg_color='#1e8b1e', font=('arial', 16, 'bold'), command=self.pagar)
+        boton_completar.grid(row=0, column=1, padx=15, pady=5, ipadx=5, ipady=5)
+        boton_completar.bind('<Enter>', lambda event: color_fg(event, boton=boton_completar, color='#125412'))
+        boton_completar.bind('<Leave>', lambda event: color_fg(event, boton=boton_completar, color='#1e8b1e'))
 
     def pagar(self):
         ans = MensajeEmergente(self, 'Concretar Pago', '¿Desea concretar la compra?')
@@ -94,4 +104,7 @@ class FramePagar(CTkFrame):
         ans.mensaje_pregunta()
         self.wait_window(ans)
         if ans.ans:
-            MensajeEmergente(self, 'Pago', 'Compra cancelada!!').mensaje_correcto()
+            for widget in self.root.pack_slaves():
+                widget.pack_forget()
+
+            FrameAutomoviles(self.root).pack(padx=10, pady=10, fill='both', expand=True)

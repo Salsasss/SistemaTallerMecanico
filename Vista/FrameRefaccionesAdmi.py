@@ -1,7 +1,7 @@
 from customtkinter import *
 from tkinter import ttk, messagebox
 from PIL import Image
-from Modelo.Data_Base import Refacciones, session
+from Data_Base import Refacciones, session
 
 class FrameRefaccionesAdmi(CTkFrame):
     def __init__(self, root):

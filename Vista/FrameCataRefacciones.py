@@ -1,7 +1,10 @@
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from customtkinter import *
 from PIL import Image, ImageTk
-from Modelo.Data_Base import obtener_refacciones
+
+from Controlador.ctrlFunciones import color_fg
+from Data_Base import obtener_refacciones, obtener_servicios
+from Data_Base import session, Refacciones,Contenido, Servicios
 
 class FrameCataRefacciones(CTkFrame):
     def __init__(self, root):
@@ -49,53 +52,82 @@ class FrameCataRefacciones(CTkFrame):
         self.catalago.pack(fill='both', expand=True)
         scrollbar.config(command=self.catalago.yview)
 
-        self.catalago['columns'] = ('1', '2', '3', '4', '5')
+        self.catalago['columns'] = ('1', '2', '3', '4', '5', '6')
         self.catalago.column('#0', width=50, anchor=CENTER)
-        self.catalago.column('1', anchor=CENTER, width=40, minwidth=50)
-        self.catalago.column('2', anchor=CENTER, width=160)
-        self.catalago.column('3', anchor=CENTER, width=90)
+        self.catalago.column('1', anchor=CENTER, width=100)
+        self.catalago.column('2', anchor=CENTER, width=80)
+        self.catalago.column('3', anchor=CENTER, width=100)
         self.catalago.column('4', anchor=CENTER, width=160)
-        self.catalago.column('5', anchor=CENTER, width=160)
+        self.catalago.column('5', anchor=CENTER, width=100)
+        self.catalago.column('6', anchor=CENTER, width=100)
 
-        self.catalago.heading('#0', text=' ')
-        self.catalago.heading('1', text='ID')
-        self.catalago.heading('2', text='Nombre')
-        self.catalago.heading('3', text='Modelo')
-        self.catalago.heading('4', text='Cantidad')
-        self.catalago.heading('5', text='Costo')
+        self.catalago.heading('#0', text='')
+        self.catalago.heading('1', text='Servicio')
+        self.catalago.heading('2', text='ID')
+        self.catalago.heading('3', text='Nombre')
+        self.catalago.heading('4', text='Modelo')
+        self.catalago.heading('5', text='Cantidad')
+        self.catalago.heading('6', text='Costo')
+        self.catalago.bind("<Double-1>", self.on_double_click)
+        self.seleccionados = []
 
         self.images = {
-            '1': ImageTk.PhotoImage(Image.open("../media/bombagasolinachevroler.png").resize((60, 95), Image.Resampling.LANCZOS)),
-            '37': ImageTk.PhotoImage(Image.open("../media/bombagasolinaford550.png").resize((60, 95), Image.Resampling.LANCZOS)),
-            '2': ImageTk.PhotoImage(Image.open("../media/bujiaschevrolet2012.png").resize((100, 95), Image.Resampling.LANCZOS)),
-            '3': ImageTk.PhotoImage(Image.open("../media/cableschevrolet2012.png").resize((100, 90), Image.Resampling.LANCZOS)),
-            '4': ImageTk.PhotoImage(Image.open("../media/valvulajackchevrolet2012.png").resize((60, 90), Image.Resampling.LANCZOS)),
-            '5': ImageTk.PhotoImage(Image.open("../media/valvulapcvchevrolet2012.png").resize((100, 90), Image.Resampling.LANCZOS)),
-            '6': ImageTk.PhotoImage(Image.open("../media/vmpassat2012.png").resize((90, 90), Image.Resampling.LANCZOS)),
-            '8': ImageTk.PhotoImage(Image.open("../media/bmwmini2013.png").resize((120, 90), Image.Resampling.LANCZOS)),
-            '22': ImageTk.PhotoImage(Image.open("../media/jeepwrangler2016.png").resize((90, 100), Image.Resampling.LANCZOS)),
-            '26': ImageTk.PhotoImage(Image.open("../media/dodgeram2021.png").resize((110, 60), Image.Resampling.LANCZOS)),
-            '47': ImageTk.PhotoImage(Image.open("../media/fordfiesta2016.png").resize((110, 60), Image.Resampling.LANCZOS)),
-            '52': ImageTk.PhotoImage(Image.open("../media/mazda32018.png").resize((110, 60), Image.Resampling.LANCZOS)),
-            '7': ImageTk.PhotoImage(Image.open("../media/balatasvwpassat2012.png").resize((120, 100), Image.Resampling.LANCZOS)),
-            '9': ImageTk.PhotoImage(Image.open("../media/amortiguadoresnissanversa2014.png").resize((60, 90), Image.Resampling.LANCZOS)),
-            '10': ImageTk.PhotoImage(Image.open("../media/depositoanticongelantechevroletspark2012.png").resize((80, 100), Image.Resampling.LANCZOS)),
-            '15': ImageTk.PhotoImage(Image.open("../media/bieletasnissanversa2014.png").resize((107, 100), Image.Resampling.LANCZOS)),
-            '17': ImageTk.PhotoImage(Image.open("../media/mangueramazda32010.png").resize((120, 60), Image.Resampling.LANCZOS)),
-            '20': ImageTk.PhotoImage(Image.open("../media/jtofordfocussport2010.png").resize((120, 80), Image.Resampling.LANCZOS)),
-            '30': ImageTk.PhotoImage(Image.open("../media/boostervwtransporter2015.png").resize((95, 95), Image.Resampling.LANCZOS)),
-            '33': ImageTk.PhotoImage(Image.open("../media/terminalesnissanversa2014.png").resize((110, 90), Image.Resampling.LANCZOS)),
-            '38': ImageTk.PhotoImage(Image.open("../media/cacahuatesnissanversa2014.png").resize((90, 90), Image.Resampling.LANCZOS)),
-            '40': ImageTk.PhotoImage(Image.open("../media/aceitemineral.png").resize((60, 90), Image.Resampling.LANCZOS)),
-            '42': ImageTk.PhotoImage(Image.open("../media/aceitesintetico.png").resize((60, 90), Image.Resampling.LANCZOS)),
-            '61': ImageTk.PhotoImage(Image.open("../media/bobinanissanversa2014.png").resize((100, 100), Image.Resampling.LANCZOS)),
-            '70': ImageTk.PhotoImage(Image.open("../media/rotulasnissanversa2014.png").resize((90, 90), Image.Resampling.LANCZOS)),
-            '90': ImageTk.PhotoImage(Image.open("../media/anticongelanteverde.png").resize((80, 90), Image.Resampling.LANCZOS)),
-            '91': ImageTk.PhotoImage(Image.open("../media/anticongelantenaranja.png").resize((60, 90), Image.Resampling.LANCZOS)),
-            '92': ImageTk.PhotoImage(Image.open("../media/anticongelanteamarillo.png").resize((80, 90), Image.Resampling.LANCZOS)),
-            '93': ImageTk.PhotoImage(Image.open("../media/anticongelanteturquesa.png").resize((80, 90), Image.Resampling.LANCZOS)),
-            '94': ImageTk.PhotoImage(Image.open("../media/anticongelanterosa.png").resize((60, 90), Image.Resampling.LANCZOS)),
-            '95': ImageTk.PhotoImage(Image.open("../media/anticongelantepurpura.png").resize((80, 90), Image.Resampling.LANCZOS))
+            '65': ImageTk.PhotoImage(Image.open(
+                "../media/bombagasolinachevroler.png").resize((60, 95), Image.Resampling.LANCZOS)),
+            '58': ImageTk.PhotoImage(Image.open(
+                "../media/bateria.png").resize((60, 95), Image.Resampling.LANCZOS)),
+            '6': ImageTk.PhotoImage(Image.open(
+                "../media/bujiaschevrolet2012.png").resize((100, 95), Image.Resampling.LANCZOS)),
+            '10': ImageTk.PhotoImage(Image.open(
+                "../media/cableschevrolet2012.png").resize((100, 90), Image.Resampling.LANCZOS)),
+            '9': ImageTk.PhotoImage(Image.open(
+                "../media/valvulajackchevrolet2012.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '12': ImageTk.PhotoImage(Image.open(
+                "../media/frenos.png").resize((100, 90), Image.Resampling.LANCZOS)),
+            '72': ImageTk.PhotoImage(Image.open(
+                "../media/vmpassat2012.png").resize((90, 90), Image.Resampling.LANCZOS)),
+            '2': ImageTk.PhotoImage(Image.open(
+                "../media/bmwmini2013.png").resize((120, 90), Image.Resampling.LANCZOS)),
+            '81': ImageTk.PhotoImage(Image.open(
+                "../media/jeepwrangler2016.png").resize((90, 100), Image.Resampling.LANCZOS)),
+            '48': ImageTk.PhotoImage(Image.open(
+                "../media/dodgeram2021.png").resize((110, 60), Image.Resampling.LANCZOS)),
+            '1': ImageTk.PhotoImage(Image.open(
+                "../media/fordfiesta2016.png").resize((110, 60), Image.Resampling.LANCZOS)),
+            '57': ImageTk.PhotoImage(Image.open(
+                "../media/ventilador.png").resize((110, 60), Image.Resampling.LANCZOS)),
+            '31': ImageTk.PhotoImage(Image.open(
+                "../media/balatasvwpassat2012.png").resize((120, 100), Image.Resampling.LANCZOS)),
+            '19': ImageTk.PhotoImage(Image.open(
+                "../media/amortiguadoresnissanversa2014.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '55': ImageTk.PhotoImage(Image.open(
+                "../media/depositoanticongelantechevroletspark2012.png").resize((80, 100), Image.Resampling.LANCZOS)),
+            '20': ImageTk.PhotoImage(Image.open(
+                "../media/bieletasnissanversa2014.png").resize((107, 100), Image.Resampling.LANCZOS)),
+            '53': ImageTk.PhotoImage(Image.open(
+                "../media/mangueramazda32010.png").resize((120, 60), Image.Resampling.LANCZOS)),
+            '7': ImageTk.PhotoImage(Image.open(
+                "../media/jtofordfocussport2010.png").resize((120, 80), Image.Resampling.LANCZOS)),
+            '18': ImageTk.PhotoImage(Image.open(
+                "../media/boostervwtransporter2015.png").resize((95, 95), Image.Resampling.LANCZOS)),
+            '21': ImageTk.PhotoImage(Image.open(
+                "../media/terminalesnissanversa2014.png").resize((110, 90), Image.Resampling.LANCZOS)),
+            '17': ImageTk.PhotoImage(Image.open(
+                "../media/cacahuatesnissanversa2014.png").resize((90, 90), Image.Resampling.LANCZOS)),
+            '3': ImageTk.PhotoImage(Image.open(
+                "../media/aceitemineral.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '4': ImageTk.PhotoImage(Image.open(
+                "../media/aceitesintetico.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '68': ImageTk.PhotoImage(Image.open(
+                "../media/bobinanissanversa2014.png").resize((100, 100), Image.Resampling.LANCZOS)),
+            '16': ImageTk.PhotoImage(Image.open(
+                "../media/rotulasnissanversa2014.png").resize((90, 90), Image.Resampling.LANCZOS)),
+            '15': ImageTk.PhotoImage(Image.open(
+                "../media/embrague.png").resize((80, 90), Image.Resampling.LANCZOS)),
+            '5': ImageTk.PhotoImage(Image.open(
+                "../media/anticongelantenaranja.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '56': ImageTk.PhotoImage(Image.open(
+                "../media/anticongelantepurpura.png").resize((80, 90), Image.Resampling.LANCZOS))
         }
 
     def _elementos_carrito(self):
@@ -108,50 +140,60 @@ class FrameCataRefacciones(CTkFrame):
         self.carrito.pack(fill='both', expand=True)
         scrollbar.config(command=self.carrito.yview)
 
-        self.carrito['columns'] = ('1', '2', '3', '4', '5')
-        self.carrito.column('#0', width=50, anchor=CENTER)
-        self.carrito.column('1', anchor=CENTER, width=40, minwidth=50)
-        self.carrito.column('2', anchor=CENTER, width=160)
-        self.carrito.column('3', anchor=CENTER, width=90)
-        self.carrito.column('4', anchor=CENTER, width=160)
-        self.carrito.column('5', anchor=CENTER, width=160)
+        self.carrito['columns'] = ('1', '2')
+        self.carrito.column('#0', anchor=CENTER, width=80)
+        self.carrito.column('1', anchor=CENTER, width=160)
+        self.carrito.column('2', anchor=CENTER, width=90)
 
-        self.carrito.heading('#0', text=' ')
-        self.carrito.heading('1', text='ID')
-        self.carrito.heading('2', text='Nombre')
-        self.carrito.heading('3', text='Modelo')
-        self.carrito.heading('4', text='Cantidad')
-        self.carrito.heading('5', text='Costo')
+        self.carrito.heading('#0', text='ID')
+        self.carrito.heading('1', text='Servicio')
+        self.carrito.heading('2', text='Costo')
+
+    def on_double_click(self, event):
+        item = self.catalago.focus()
+        servicio = self.catalago.item(item,'values')
+        response = messagebox.askquestion("Agregar Servicio?", f"Servicio: {servicio[0]}")
+        if response == "yes":
+            find_service = session.query(Servicios).where(Servicios.Tipo_Servicio.like(f"{servicio[0]}")).first()
+            self.carrito.insert('','end', text=find_service.ID_servicio, values=(find_service.Tipo_Servicio,find_service.Costo_Servicio))
 
     def _cargar_catalago(self):
-        refacciones = obtener_refacciones()
-        agrupar_refacciones = {}
+        # Realizar la consulta y obtener los resultados
+        consulta = session.query(Servicios.Tipo_Servicio, Refacciones). \
+            join(Contenido, Servicios.ID_servicio == Contenido.ID_Servicios). \
+            join(Refacciones, Refacciones.ID_refacciones == Contenido.ID_Refacciones).all()
 
-        for refaccion in refacciones:
-            nombre = refaccion[1]
+        # Limpiar el Treeview existente
+        for item in self.catalago.get_children():
+            self.catalago.delete(item)
+
+        # Agrupar refacciones por servicio
+        agrupar_refacciones = {}
+        for servicio, refaccion in consulta:
+            nombre = servicio
             if nombre not in agrupar_refacciones:
                 agrupar_refacciones[nombre] = []
             agrupar_refacciones[nombre].append(refaccion)
 
-        for nombre, refacciones in agrupar_refacciones.items():
-            parent_id = self.catalago.insert('', 'end', text='', values=('', nombre, '', '', ''))
+        # Insertar datos en el Treeview
+        for servicio, refacciones in agrupar_refacciones.items():
+            parent_id = self.catalago.insert('', 'end', text='', values=(servicio, '', '', '', '', ''))
             for refaccion in refacciones:
-                id_ = refaccion[0]
-                modelo = refaccion[2]
-                cantidad = refaccion[3]
-                costo = refaccion[4]
-                img_key = str(id_)
+                id_refaccion = refaccion.ID_refacciones
+                nombre_refaccion = refaccion.NombreRefacciones
+                modelo = refaccion.Modelo
+                cantidad = refaccion.Cantidad
+                costo_refaccion = refaccion.Costo
+                img_key = str(id_refaccion)
                 image = self.images.get(img_key)
 
                 if image is None:
-                    self.catalago.insert(parent_id, 'end', text='', values=(id_, '', modelo, cantidad, costo), tags=('nested',))
+                    self.catalago.insert(parent_id, 'end', text='',
+                                         values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion),
+                                         tags=('nested',))
                 else:
-                    self.catalago.insert(parent_id, 'end', text='', image=image, values=(id_, '', modelo, cantidad, costo), tags=('nested',))
+                    self.catalago.insert(parent_id, 'end', text='', image=image,
+                                         values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion),
+                                         tags=('nested',))
 
         self.catalago.tag_configure('nested', background='#F3F3F3')
-
-#if __name__ == '__main__':
-#    root = CTk()
-#    frame = FrameCataRefacciones(root)
-#    frame.pack(fill='both', expand=True)
-#    root.mainloop()
