@@ -117,6 +117,7 @@ class Contenido(Base):
     #------# FK's de Servicios y Refacciones #------#
     ID_Servicios = Column(ForeignKey("servicio.ID_servicio"))
     ID_Refacciones = Column(ForeignKey("refacciones.ID_refacciones"))
+    Cantidad_necesaria = Column(Integer)
 
     def __repr__(self):
         return f"<Servicios y Refacciones \n ID de Servicios = {self.ID_Servicios} \n ID de Refacciones = {self.ID_Refacciones} \n>\n\n"

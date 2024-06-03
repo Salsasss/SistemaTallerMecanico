@@ -2,15 +2,12 @@ import subprocess
 
 from customtkinter import *
 from Controlador.ctrlFunciones import *
-from Vista.FrameCataRefacciones import FrameCataRefacciones
 from Vista.FrameClientes import FrameClientes
 from Vista.FrameEmpleados import FrameEmpleados
 from Vista.FrameNuevoServicio import FrameNuevoServicio
-from Vista.FramePagar import FramePagar
 from Vista.FrameRefaccionesAdmi import FrameRefaccionesAdmi
 from Vista.FrameAutomoviles import FrameAutomoviles
 from PIL import Image, ImageTk
-
 
 class FrameMenuPrincipal(CTkFrame):
     def __init__(self, root):
@@ -100,8 +97,6 @@ class FrameMenuPrincipal(CTkFrame):
         elif acc == 3:
             FrameEmpleados(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
         elif acc == 4:
-            FramePagar(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
-        elif acc == 5:
             FrameRefaccionesAdmi(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
 
     def _barra_opciones(self):
@@ -121,7 +116,7 @@ class FrameMenuPrincipal(CTkFrame):
         label_logo.grid(row=0, column=0, pady=10)
         label_logo.bind('<Button-1>', pantalla_principal)
 
-        opc = ['🚗 Nuevo Servicio', '👤Clientes', '🔧 Automoviles', '👤 Empleados', 'pagar', '🔧 Refacciones']
+        opc = ['🚗 Nuevo Servicio', '👤Clientes', '🔧 Automoviles', '👤 Empleados', '🔧 Refacciones']
         for i in range(len(opc)):
             label = CTkLabel(barra_opciones, width=200, text=opc[i], text_color='white', font=('arial', 16, 'bold'), corner_radius=10)
             label.grid(row=i + 1, column=0, ipady=15, padx=10)
@@ -129,10 +124,10 @@ class FrameMenuPrincipal(CTkFrame):
             self.opciones.append(label)
 
         texto_saludo = CTkLabel(barra_opciones, text=f'¡Hola, {self.session_empleado["nombre"]}!', text_color='white', font=('arial', 16, 'bold'))
-        texto_saludo.grid(row=11, column=0, pady=(130, 20), sticky=S)
+        texto_saludo.grid(row=6, column=0, pady=(160, 20), sticky=S)
 
         label_cerrar_sesion = CTkLabel(barra_opciones, text='Cerrar Sesión', text_color='white', font=('arial', 16, 'bold'))
-        label_cerrar_sesion.grid(row=12, column=0, sticky=S)
+        label_cerrar_sesion.grid(row=7, column=0, sticky=S)
         label_cerrar_sesion.bind('<Enter>', lambda event: color_text(event, boton=label_cerrar_sesion, color='#b8161b'))
         label_cerrar_sesion.bind('<Leave>', lambda event: color_text(event, boton=label_cerrar_sesion, color='white'))
         label_cerrar_sesion.bind('<Button-1>', self.cerrar_sesion)

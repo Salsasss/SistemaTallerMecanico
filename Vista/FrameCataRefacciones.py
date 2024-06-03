@@ -9,6 +9,7 @@ from Data_Base import session, Refacciones,Contenido, Servicios
 class FrameCataRefacciones(CTkFrame):
     def __init__(self, root):
         super().__init__(root)
+        self.root = root
         CTkLabel(self, text='Servicios Realizados al Vehiculo', font=('arial', 25, 'bold')).pack(pady=(10, 0))
 
         style = ttk.Style()
@@ -16,10 +17,25 @@ class FrameCataRefacciones(CTkFrame):
         style.configure('Treeview', font=('arial', 16), rowheight=35)
 
         self.texto_buscar = StringVar()
+        self.refacciones_carrito = []
+
         self._elementos_herramientas()
         self._elementos_tabla()
-        self._elementos_carrito()
         self._cargar_catalago()
+        self._elementos_carrito()
+        self._boton_submit()
+
+    def _boton_submit(self):
+        def ir_pagar():
+            for widget in self.root.pack_slaves():
+                widget.pack_forget()
+            from Vista.FramePagar import FramePagar
+            FramePagar(self.root, self.refacciones_carrito).pack(padx=10, pady=10, fill='both', expand=True)
+
+        boton_submit = CTkButton(self, text='Ir a Pagar', font=('arial', 16, 'bold'), fg_color='#1e8b1e', command=ir_pagar)
+        boton_submit.pack(side='right', padx=10, pady=(0, 10), ipadx=5, ipady=5)
+        boton_submit.bind('<Enter>', lambda event: color_fg(event, boton=boton_submit, color='#125412'))
+        boton_submit.bind('<Leave>', lambda event: color_fg(event, boton=boton_submit, color='#1e8b1e'))
 
     def _elementos_herramientas(self):
         def buscar(e):
@@ -44,11 +60,11 @@ class FrameCataRefacciones(CTkFrame):
 
     def _elementos_tabla(self):
         cont_tabla = CTkFrame(self)
-        cont_tabla.pack(fill='both', padx=10, pady=(0, 20), expand=True)
+        cont_tabla.pack(fill='x', padx=10, pady=(0, 20), expand=False)
 
         scrollbar = ttk.Scrollbar(cont_tabla)
         scrollbar.pack(side='right', fill='y')
-        self.catalago = ttk.Treeview(cont_tabla, yscrollcommand=scrollbar.set)
+        self.catalago = ttk.Treeview(cont_tabla, height=8, yscrollcommand=scrollbar.set)
         self.catalago.pack(fill='both', expand=True)
         scrollbar.config(command=self.catalago.yview)
 
@@ -132,11 +148,11 @@ class FrameCataRefacciones(CTkFrame):
 
     def _elementos_carrito(self):
         cont_tabla = CTkFrame(self)
-        cont_tabla.pack(fill='both', padx=10, pady=(0, 20), expand=True)
+        cont_tabla.pack(fill='x', padx=10, pady=(0, 20), expand=False)
 
         scrollbar = ttk.Scrollbar(cont_tabla)
         scrollbar.pack(side='right', fill='y')
-        self.carrito = ttk.Treeview(cont_tabla, yscrollcommand=scrollbar.set)
+        self.carrito = ttk.Treeview(cont_tabla, height=7, yscrollcommand=scrollbar.set)
         self.carrito.pack(fill='both', expand=True)
         scrollbar.config(command=self.carrito.yview)
 
@@ -155,6 +171,7 @@ class FrameCataRefacciones(CTkFrame):
         response = messagebox.askquestion("Agregar Servicio?", f"Servicio: {servicio[0]}")
         if response == "yes":
             find_service = session.query(Servicios).where(Servicios.Tipo_Servicio.like(f"{servicio[0]}")).first()
+            self.refacciones_carrito.append(find_service.ID_servicio)
             self.carrito.insert('','end', text=find_service.ID_servicio, values=(find_service.Tipo_Servicio,find_service.Costo_Servicio))
 
     def _cargar_catalago(self):
@@ -178,6 +195,7 @@ class FrameCataRefacciones(CTkFrame):
         # Insertar datos en el Treeview
         for servicio, refacciones in agrupar_refacciones.items():
             parent_id = self.catalago.insert('', 'end', text='', values=(servicio, '', '', '', '', ''))
+            print(servicio)
             for refaccion in refacciones:
                 id_refaccion = refaccion.ID_refacciones
                 nombre_refaccion = refaccion.NombreRefacciones
@@ -188,12 +206,8 @@ class FrameCataRefacciones(CTkFrame):
                 image = self.images.get(img_key)
 
                 if image is None:
-                    self.catalago.insert(parent_id, 'end', text='',
-                                         values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion),
-                                         tags=('nested',))
+                    self.catalago.insert(parent_id, 'end', text='', values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion), tags=('nested',))
                 else:
-                    self.catalago.insert(parent_id, 'end', text='', image=image,
-                                         values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion),
-                                         tags=('nested',))
+                    self.catalago.insert(parent_id, 'end', text='', image=image, values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion), tags=('nested',))
 
         self.catalago.tag_configure('nested', background='#F3F3F3')

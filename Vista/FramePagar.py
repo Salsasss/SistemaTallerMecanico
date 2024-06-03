@@ -2,76 +2,108 @@ from tkinter.ttk import Treeview
 from tkinter import messagebox, ttk
 from customtkinter import *
 from tkinter import *
+from PIL import Image, ImageTk
 
 from Controlador.ctrlFunciones import color_fg
+from Vista.Data_Base import session, Servicios, Contenido, Refacciones
 from Vista.FrameAutomoviles import FrameAutomoviles
 from Vista.MensajeEmergente import MensajeEmergente
 
 class FramePagar(CTkFrame):
-    def __init__(self, root):
+    def __init__(self, root, refacciones_carrito):
         super().__init__(root)
         self.root = root
-        CTkLabel(self, text='Pagar', font=('arial', 25, 'bold')).pack(fill='x', pady=(10, 0))
-        #CTkLabel(self, text='Pagar', font=('arial', 25, 'bold')).grid(row=0, column=0)
+        self.refacciones_carrito = refacciones_carrito
+        CTkLabel(self, text='Total a Pagar', font=('arial', 25, 'bold')).pack(fill='x', pady=10)
         self.txt_compra = StringVar()
 
-        cont_herramientas = CTkFrame(self, fg_color='#dbdbdb')
-        cont_herramientas.pack(fill='x', padx=10)
+        self.images = {
+            '65': ImageTk.PhotoImage(Image.open(
+                "../media/bombagasolinachevroler.png").resize((60, 95), Image.Resampling.LANCZOS)),
+            '58': ImageTk.PhotoImage(Image.open(
+                "../media/bateria.png").resize((60, 95), Image.Resampling.LANCZOS)),
+            '6': ImageTk.PhotoImage(Image.open(
+                "../media/bujiaschevrolet2012.png").resize((100, 95), Image.Resampling.LANCZOS)),
+            '10': ImageTk.PhotoImage(Image.open(
+                "../media/cableschevrolet2012.png").resize((100, 90), Image.Resampling.LANCZOS)),
+            '9': ImageTk.PhotoImage(Image.open(
+                "../media/valvulajackchevrolet2012.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '12': ImageTk.PhotoImage(Image.open(
+                "../media/frenos.png").resize((100, 90), Image.Resampling.LANCZOS)),
+            '72': ImageTk.PhotoImage(Image.open(
+                "../media/vmpassat2012.png").resize((90, 90), Image.Resampling.LANCZOS)),
+            '2': ImageTk.PhotoImage(Image.open(
+                "../media/bmwmini2013.png").resize((120, 90), Image.Resampling.LANCZOS)),
+            '81': ImageTk.PhotoImage(Image.open(
+                "../media/jeepwrangler2016.png").resize((90, 100), Image.Resampling.LANCZOS)),
+            '48': ImageTk.PhotoImage(Image.open(
+                "../media/dodgeram2021.png").resize((110, 60), Image.Resampling.LANCZOS)),
+            '1': ImageTk.PhotoImage(Image.open(
+                "../media/fordfiesta2016.png").resize((110, 60), Image.Resampling.LANCZOS)),
+            '57': ImageTk.PhotoImage(Image.open(
+                "../media/ventilador.png").resize((110, 60), Image.Resampling.LANCZOS)),
+            '31': ImageTk.PhotoImage(Image.open(
+                "../media/balatasvwpassat2012.png").resize((120, 100), Image.Resampling.LANCZOS)),
+            '19': ImageTk.PhotoImage(Image.open(
+                "../media/amortiguadoresnissanversa2014.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '55': ImageTk.PhotoImage(Image.open(
+                "../media/depositoanticongelantechevroletspark2012.png").resize((80, 100), Image.Resampling.LANCZOS)),
+            '20': ImageTk.PhotoImage(Image.open(
+                "../media/bieletasnissanversa2014.png").resize((107, 100), Image.Resampling.LANCZOS)),
+            '53': ImageTk.PhotoImage(Image.open(
+                "../media/mangueramazda32010.png").resize((120, 60), Image.Resampling.LANCZOS)),
+            '7': ImageTk.PhotoImage(Image.open(
+                "../media/jtofordfocussport2010.png").resize((120, 80), Image.Resampling.LANCZOS)),
+            '18': ImageTk.PhotoImage(Image.open(
+                "../media/boostervwtransporter2015.png").resize((95, 95), Image.Resampling.LANCZOS)),
+            '21': ImageTk.PhotoImage(Image.open(
+                "../media/terminalesnissanversa2014.png").resize((110, 90), Image.Resampling.LANCZOS)),
+            '17': ImageTk.PhotoImage(Image.open(
+                "../media/cacahuatesnissanversa2014.png").resize((90, 90), Image.Resampling.LANCZOS)),
+            '3': ImageTk.PhotoImage(Image.open(
+                "../media/aceitemineral.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '4': ImageTk.PhotoImage(Image.open(
+                "../media/aceitesintetico.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '68': ImageTk.PhotoImage(Image.open(
+                "../media/bobinanissanversa2014.png").resize((100, 100), Image.Resampling.LANCZOS)),
+            '16': ImageTk.PhotoImage(Image.open(
+                "../media/rotulasnissanversa2014.png").resize((90, 90), Image.Resampling.LANCZOS)),
+            '15': ImageTk.PhotoImage(Image.open(
+                "../media/embrague.png").resize((80, 90), Image.Resampling.LANCZOS)),
+            '5': ImageTk.PhotoImage(Image.open(
+                "../media/anticongelantenaranja.png").resize((60, 90), Image.Resampling.LANCZOS)),
+            '56': ImageTk.PhotoImage(Image.open(
+                "../media/anticongelantepurpura.png").resize((80, 90), Image.Resampling.LANCZOS))
+        }
 
-        self.entry_buscar = CTkEntry(cont_herramientas, font=('arial', 16), border_width=2, border_color='blue', corner_radius=10, justify=CENTER)
-        #self.entry_buscar.grid(row=1, column=0, sticky=EW, padx=10, pady=10, ipady=5)
-        self.entry_buscar.pack(fill='x', side='left', expand=True, padx=(0, 10), pady=10, ipady=5)
+        cont_tabla = CTkFrame(self)
+        cont_tabla.pack(fill='x', padx=10, pady=(0, 20), expand=False)
 
-        #CTkButton(self, fg_color='blue', text='Buscar', font=('arial', 16, 'bold')).grid(row=1, column=1, padx=5, pady=5, ipadx=5, ipady=5)
-        CTkButton(cont_herramientas, fg_color='blue', text='Buscar', font=('arial', 16, 'bold')).pack(fill='x', side='left', pady=5, ipadx=5, ipady=5)
-
-        style = ttk.Style()
-        style.configure('Treeview.Heading', background='blue', foreground='white', font=('arial', 16, 'bold'), padding=8)
-        style.configure('Treeview', font=('arial', 16), rowheight=22)
-
-        #Treeview 1
-        cont_tree1 = CTkFrame(self)
-        #cont_tree1.grid(row=2, column=0, sticky=EW, padx=5, pady=5, columnspan=2)
-        cont_tree1.pack(fill='x', padx=10, pady=(0, 5))
-
-        scrollbar = ttk.Scrollbar(cont_tree1)
+        scrollbar = ttk.Scrollbar(cont_tabla)
         scrollbar.pack(side='right', fill='y')
-        self.tree_productos = ttk.Treeview(cont_tree1, columns=('producto', 'cantidad', 'precio'), yscrollcommand=scrollbar.set)
-        self.tree_productos.pack(fill='both', expand=True)
-        scrollbar.config(command=self.tree_productos.yview)
+        self.catalago = ttk.Treeview(cont_tabla, height=8, yscrollcommand=scrollbar.set)
+        self.catalago.pack(fill='both', expand=True)
+        scrollbar.config(command=self.catalago.yview)
 
-        #Treeview 2
-        cont_tree2 = CTkFrame(self)
-        #cont_tree2.grid(row=3, column=0, sticky=EW, padx=5, pady=5, columnspan=2)
-        cont_tree2.pack(fill='x', padx=10, pady=(0, 5))
+        self.catalago['columns'] = ('1', '2', '3', '4', '5', '6')
+        self.catalago.column('#0', width=50, anchor=CENTER)
+        self.catalago.column('1', anchor=CENTER, width=100)
+        self.catalago.column('2', anchor=CENTER, width=80)
+        self.catalago.column('3', anchor=CENTER, width=100)
+        self.catalago.column('4', anchor=CENTER, width=160)
+        self.catalago.column('5', anchor=CENTER, width=100)
+        self.catalago.column('6', anchor=CENTER, width=100)
 
-        scrollbar = ttk.Scrollbar(cont_tree2)
-        scrollbar.pack(side='right', fill='y')
-        self.tree_servicios = Treeview(cont_tree2, columns=('servicio', 'descuento', 'precio'), yscrollcommand=scrollbar.set)
-        self.tree_servicios.pack(fill='both', expand=True)
-        scrollbar.config(command=self.tree_servicios.yview)
+        self.catalago.heading('#0', text='')
+        self.catalago.heading('1', text='Servicio')
+        self.catalago.heading('2', text='ID')
+        self.catalago.heading('3', text='Nombre')
+        self.catalago.heading('4', text='Modelo')
+        self.catalago.heading('5', text='Cantidad')
+        self.catalago.heading('6', text='Costo')
 
-        headings_productos = [('#0', 'ID'), ('producto', 'Productos'), ('cantidad', 'Cantidad'), ('precio', 'Precio')]
-        headings_servicios = [('#0', 'ID'), ('servicio', 'Servicios'), ('descuento', 'Descuento'), ('precio', 'Precio')]
-
-        for heading in headings_productos:
-            self.tree_productos.heading(heading[0], text=heading[1])
-            self.tree_productos.column(heading[0], anchor=CENTER, width=200)
-
-        for heading in headings_servicios:
-            self.tree_servicios.heading(heading[0], text=heading[1])
-            self.tree_servicios.column(heading[0], anchor=CENTER, width=200)
-
-        listaUsers = [('Yerimua', 'Traakaaa', '3'), ('BellaKat', 'Kbonitos0J0s', '3'), ('Tochika', 'Tokio0J0s', '3'), ('LunaBella', 'LuNabella69', '3'),('Yerimua', 'Traakaaa', '3'), ('BellaKat', 'Kbonitos0J0s', '3'), ('Tochika', 'Tokio0J0s', '3'), ('LunaBella', 'LuNabella69', '3'),('Yerimua', 'Traakaaa', '3'), ('BellaKat', 'Kbonitos0J0s', '3'), ('Tochika', 'Tokio0J0s', '3'), ('LunaBella', 'LuNabella69', '3')]
-
-        cont = 0
-        for user in listaUsers:
-            cont += 1
-            self.tree_productos.insert('', END, text=str(cont), values=(user[0], user[1], user[2]))
-            self.tree_servicios.insert('', END, text=str(cont), values=(user[0], user[1], user[2]))
-
-        #CTkLabel(self, text='Total de la compra', font=('arial', 16, 'bold')).grid(row=4, column=0, sticky=NSEW, padx=5, pady=5, columnspan=2)
-        #CTkEntry(self, justify=CENTER, state=DISABLED, textvariable=self.txt_compra, font=('arial', 16), border_width=2, border_color='blue', corner_radius=10).grid(row=5, column=0, sticky=EW, padx=5, pady=5, ipady=5, columnspan=2)
+        # Agregando las refacciones al carrito
+        self._cargar_catalago()
 
         CTkLabel(self, text='Total de la compra', font=('arial', 16, 'bold')).pack(fill='x', padx=5, pady=5)
         CTkEntry(self, justify=CENTER, state=DISABLED, textvariable=self.txt_compra, font=('arial', 16), border_width=2, border_color='blue', corner_radius=10).pack(fill='x', padx=5, pady=5, ipady=5)
@@ -91,6 +123,43 @@ class FramePagar(CTkFrame):
         boton_completar.grid(row=0, column=1, padx=15, pady=5, ipadx=5, ipady=5)
         boton_completar.bind('<Enter>', lambda event: color_fg(event, boton=boton_completar, color='#125412'))
         boton_completar.bind('<Leave>', lambda event: color_fg(event, boton=boton_completar, color='#1e8b1e'))
+
+    def _cargar_catalago(self):
+        # Realizar la consulta y obtener los resultados
+        consulta = session.query(Servicios.Tipo_Servicio, Refacciones). \
+            join(Contenido, Servicios.ID_servicio == Contenido.ID_Servicios). \
+            join(Refacciones, Refacciones.ID_refacciones == Contenido.ID_Refacciones).where(Servicios.ID_servicio.in_(self.refacciones_carrito)).all()
+
+        # Limpiar el Treeview existente
+        for item in self.catalago.get_children():
+            self.catalago.delete(item)
+
+        # Agrupar refacciones por servicio
+        agrupar_refacciones = {}
+        for servicio, refaccion in consulta:
+            nombre = servicio
+            if nombre not in agrupar_refacciones:
+                agrupar_refacciones[nombre] = []
+            agrupar_refacciones[nombre].append(refaccion)
+
+        # Insertar datos en el Treeview
+        for servicio, refacciones in agrupar_refacciones.items():
+            parent_id = self.catalago.insert('', 'end', text='', values=(servicio, '', '', '', '', ''))
+            for refaccion in refacciones:
+                id_refaccion = refaccion.ID_refacciones
+                nombre_refaccion = refaccion.NombreRefacciones
+                modelo = refaccion.Modelo
+                cantidad = refaccion.Cantidad
+                costo_refaccion = refaccion.Costo
+                img_key = str(id_refaccion)
+                image = self.images.get(img_key)
+
+                if image is None:
+                    self.catalago.insert(parent_id, 'end', text='', values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion), tags=('nested',))
+                else:
+                    self.catalago.insert(parent_id, 'end', text='', image=image, values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion), tags=('nested',))
+
+        self.catalago.tag_configure('nested', background='#F3F3F3')
 
     def pagar(self):
         ans = MensajeEmergente(self, 'Concretar Pago', '¿Desea concretar la compra?')
