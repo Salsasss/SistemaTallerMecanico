@@ -1,6 +1,6 @@
 from tkinter import ttk
 from customtkinter import *
-from Data_Base import session, Vehiculo
+from Data_Base import session, Vehiculo,Mantenimiento
 from Vista.FrameCataRefacciones import FrameCataRefacciones
 from Vista.MensajeEmergente import MensajeEmergente
 
@@ -41,20 +41,25 @@ class FrameAutomoviles(CTkFrame):
         self.buscar.bind('<KeyRelease>', poner_placeholder)
         self.texto_buscar.set('Buscar')
 
-        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC Cliente', 'VIN', 'Marca', 'Año', 'Kilometraje', 'Placa', 'Modelo', 'Motor', 'Estatus'])
+        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC Cliente', 'VIN', 'Marca', 'Año', 'Kilometraje', 'Placa', 'Modelo', 'Motor', 'En revisión', 'Completado'])
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
     def accion_doble_click(self, e):
-        ans = MensajeEmergente(self, 'Servicio', '¿Desea completar el servicio?')
-        ans.mensaje_pregunta()
-        self.wait_window(ans)
-        if ans.ans:
-            #Borrar todo del frame
-            for widget in self.root.pack_slaves():
-                widget.pack_forget()
-            vin = self.serv.item(self.serv.selection()[0], 'text')
-            print(vin)
-            FrameCataRefacciones(self.root).pack(padx=10, pady=10, fill='both', expand=True)
+        # Solo si el auto esta en revision
+        vin = self.serv.item(self.serv.selection()[0], 'values')[0]
+        status = session.query(Mantenimiento).filter_by(VIN=vin).first()
+        if status.Estatus==0:
+            ans = MensajeEmergente(self, 'Servicio', '¿Desea completar el servicio?')
+            ans.mensaje_pregunta()
+            self.wait_window(ans)
+            if ans.ans:
+                #Borrar todo del frame
+                for widget in self.root.pack_slaves():
+                    widget.pack_forget()
+                vin = self.serv.item(self.serv.selection()[0], 'values')[0]
+                FrameCataRefacciones(self.root, vin).pack(padx=10, pady=10, fill='both', expand=True)
+        else:
+            MensajeEmergente(self, 'Error', 'Servicio ya Completado').mensaje_error()
 
     def _elementos_tabla(self):
         def actualizar_busqueda(*args):
@@ -80,7 +85,7 @@ class FrameAutomoviles(CTkFrame):
         vscroll.pack(side='right', fill='y')
         self.serv.configure(yscrollcommand=vscroll.set)
 
-        self.serv['columns'] = ('1', '2', '3', '4', '5', '6', '7', '8')
+        self.serv['columns'] = ('1', '2', '3', '4', '5', '6', '7', '8','9')
         self.serv.column('#0', anchor=CENTER, width=120)
         self.serv.column('1', anchor=CENTER, width=120)
         self.serv.column('2', anchor=CENTER, width=40)
@@ -90,6 +95,7 @@ class FrameAutomoviles(CTkFrame):
         self.serv.column('6', anchor=CENTER, width=100)
         self.serv.column('7', anchor=CENTER, width=100)
         self.serv.column('8', anchor=CENTER, width=100)
+        self.serv.column('9', anchor=CENTER, width=100)
 
         self.serv.heading('#0', text='RFC Cliente')
         self.serv.heading('1', text='VIN')
@@ -99,7 +105,8 @@ class FrameAutomoviles(CTkFrame):
         self.serv.heading('5', text='Placa')
         self.serv.heading('6', text='Modelo')
         self.serv.heading('7', text='Motor')
-        self.serv.heading('8', text='Estatus')
+        self.serv.heading('8', text='Fecha de ingreso')
+        self.serv.heading('9', text='Estatus')
 
         self.texto_buscar.trace('w', actualizar_busqueda)
         self.buscar_por.trace('w', actualizar_busqueda)
@@ -111,9 +118,10 @@ class FrameAutomoviles(CTkFrame):
         for item in self.serv.get_children():
             self.serv.delete(item)
 
-        if self.texto_buscar.get() == 'Buscar':
+        if self.texto_buscar.get() == 'Buscar' and self.buscar_por.get()!='En revisión' and self.buscar_por.get()!='Completado':
             vehiculos = session.query(Vehiculo).all()
         else:
+            #status = session.query(Mantenimiento).filter_by(VIN=Vehiculo.VIN).first()
             if self.buscar_por.get() == 'RFC Cliente':
                 vehiculos = session.query(Vehiculo).filter(Vehiculo.RFC_Cliente.like(f'%{self.texto_buscar.get()}%'))
             if self.buscar_por.get() == 'VIN':
@@ -130,14 +138,26 @@ class FrameAutomoviles(CTkFrame):
                 vehiculos = session.query(Vehiculo).filter(Vehiculo.Modelo.like(f'%{self.texto_buscar.get()}%'))
             elif self.buscar_por.get() == 'Motor':
                 vehiculos = session.query(Vehiculo).filter(Vehiculo.Motor.like(f'%{self.texto_buscar.get()}%'))
+            elif self.buscar_por.get() == 'En revisión':
+                vehiculos = session.query(Mantenimiento).filter(Mantenimiento.Estatus==0).all()
+                VINs = []
+                for vehiculo in vehiculos:
+                    VINs.append(vehiculo.VIN)
+                vehiculos = session.query(Vehiculo).where(Vehiculo.VIN.in_(VINs))
+            elif self.buscar_por.get() == 'Completado':
+                vehiculos = session.query(Mantenimiento).filter(Mantenimiento.Estatus==1).all()
+                VINs = []
+                for vehiculo in vehiculos:
+                    VINs.append(vehiculo.VIN)
+                vehiculos = session.query(Vehiculo).where(Vehiculo.VIN.in_(VINs))
             elif self.buscar_por.get() == '':
                 vehiculos = session.query(Vehiculo).all()
 
-        i=0
         for vehiculo in vehiculos:
-            if i%2==0:
-                self.serv.insert('', 'end', text=f'{vehiculo.RFC_Cliente}', values=(vehiculo.VIN, vehiculo.Marca, vehiculo.Anio, vehiculo.Kilometraje, vehiculo.Placa, vehiculo.Modelo, vehiculo.Motor), tags=['verde'])
-            else:
-                self.serv.insert('', 'end', text=f'{vehiculo.RFC_Cliente}', values=(vehiculo.VIN, vehiculo.Marca, vehiculo.Anio, vehiculo.Kilometraje, vehiculo.Placa, vehiculo.Modelo, vehiculo.Motor), tags=['amarillo'])
-
-            i+=1
+            status = session.query(Mantenimiento).filter_by(VIN=vehiculo.VIN).first()
+            if status.Estatus==0:
+                estatus = 'En revisión'
+                self.serv.insert('', 'end', text=f'{vehiculo.RFC_Cliente}', values=(vehiculo.VIN, vehiculo.Marca, vehiculo.Anio, vehiculo.Kilometraje, vehiculo.Placa, vehiculo.Modelo, vehiculo.Motor, status.Fecha_inicio, estatus), tags=['amarillo'])
+            elif status.Estatus==1:
+                estatus = 'Completado'
+                self.serv.insert('', 'end', text=f'{vehiculo.RFC_Cliente}', values=(vehiculo.VIN, vehiculo.Marca, vehiculo.Anio, vehiculo.Kilometraje, vehiculo.Placa, vehiculo.Modelo, vehiculo.Motor, status.Fecha_inicio, estatus), tags=['verde'])

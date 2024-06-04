@@ -47,7 +47,7 @@ class FrameClientes(CTkFrame):
         ventana_nuevo_auto.grab_set()
         ventana_nuevo_auto.bind('<Destroy>', self.actualizar_treeview)
 
-    def accion_doble_click(self, e): # Editar empleado
+    def accion_doble_click(self, e): # Añadir vehiculo
         ans = MensajeEmergente(self, 'Acciones', '¿Desea agregar un Automovil al cliente?')
         ans.mensaje_pregunta()
         self.wait_window(ans)
@@ -92,7 +92,7 @@ class FrameClientes(CTkFrame):
         self.serv.column('8', anchor=CENTER, width=100)
         self.serv.column('9', anchor=CENTER, width=100)
         self.serv.column('10', anchor=CENTER, width=100)
-        self.serv.column('11', anchor=CENTER, width=100)
+        self.serv.column('11', anchor=CENTER, width=150)
 
         self.serv.heading('#0', text='RFC')
         self.serv.heading('1', text='Nombre')
@@ -103,7 +103,7 @@ class FrameClientes(CTkFrame):
         self.serv.heading('6', text='Ciudad')
         self.serv.heading('7', text='C.P.')
         self.serv.heading('8', text='Colonia')
-        self.serv.heading('9', text='calle')
+        self.serv.heading('9', text='Calle')
         self.serv.heading('10', text='N. Ext.')
         self.serv.heading('11', text='N. Int.')
 

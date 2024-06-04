@@ -1,5 +1,6 @@
+from datetime import *
 from customtkinter import *
-from Data_Base import Vehiculo, session
+from Data_Base import Vehiculo, session,Mantenimiento
 from Vista.MensajeEmergente import MensajeEmergente
 
 class FrameRegisAutomovil(CTkToplevel):
@@ -61,25 +62,35 @@ class FrameRegisAutomovil(CTkToplevel):
             if dato == '':
                 MensajeEmergente(self, 'Error', 'Por favor. Llene todos los campos').mensaje_error()
                 return
+        try:
+            # Nuevo Automovil
+            if session.query(Vehiculo).filter(Vehiculo.VIN == self.vin.get()).first():
+                MensajeEmergente(self, 'Error', 'El Vehiculo ya existe').mensaje_error()
+            else:
+                self.datetime = datetime.now()
+                part_1_1 = Mantenimiento(Fecha_inicio=date(self.datetime.year, self.datetime.month, self.datetime.day), Estatus=0)
+                session.add(part_1_1)
+                session.commit()
 
-        # Nuevo Automovil
-        if session.query(Vehiculo).filter(Vehiculo.VIN == self.vin.get()).first():
-            MensajeEmergente(self, 'Error', 'El Vehiculo ya existe').mensaje_error()
-        else:
-            new_vehiculo = Vehiculo(
-                Marca=self.marca.get(),
-                Modelo=self.modelo.get(),
-                Anio=self.anio.get(),
-                Motor=self.motor.get(),
-                Kilometraje=self.km.get(),
-                VIN=self.vin.get(),
-                Placa=self.placas.get(),
-                RFC_Cliente=self.rfc_cliente
-            )
-            session.add(new_vehiculo)
-            session.commit()
-            MensajeEmergente(self, 'Exito', '¡Vehiculo guardado con éxito!').mensaje_correcto()
-            self.limpiar_campos()
+                new_vehiculo = Vehiculo(
+                    Marca=self.marca.get(),
+                    Modelo=self.modelo.get(),
+                    Anio=self.anio.get(),
+                    Motor=self.motor.get(),
+                    Kilometraje=self.km.get(),
+                    VIN=self.vin.get(),
+                    Placa=self.placas.get(),
+                    RFC_Cliente=self.rfc_cliente
+                )
+                new_vehiculo.Maintenance.append(part_1_1)
+                session.add(new_vehiculo)
+                session.commit()
+
+                MensajeEmergente(self, 'Exito', '¡Vehiculo guardado con éxito!').mensaje_correcto()
+                self.limpiar_campos()
+        except Exception as e:
+            session.rollback()
+            MensajeEmergente(self, 'Error','Error al guardar el Automovil. Por favor revise los campos').mensaje_error()
 
     def limpiar_campos(self):
         self.marca.set('')
@@ -89,3 +100,4 @@ class FrameRegisAutomovil(CTkToplevel):
         self.km.set('')
         self.vin.set('')
         self.placas.set('')
+

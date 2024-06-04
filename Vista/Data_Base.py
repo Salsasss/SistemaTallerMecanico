@@ -69,7 +69,7 @@ class Vehiculo(Base):
     Maintenance = relationship(Mantenimiento)
 
     def __repr__(self):
-        return f"<Vehiculo \n VIN = {self.VIN} \n Placa = {self.Placa} \n Marca = {self.Marca} \n Modelo = {self.Modelo} \n Año = {self.Año} \n Motor= {self.Motor} \n Kilometraje = {self.Kilometraje} \n RFC del cliente = {self.RFC_Cliente} \n>\n\n"
+        return f"<Vehiculo \n VIN = {self.VIN} \n Placa = {self.Placa} \n Marca = {self.Marca} \n Modelo = {self.Modelo} \n Año = {self.anio1} \n Motor= {self.Motor} \n Kilometraje = {self.Kilometraje} \n RFC del cliente = {self.RFC_Cliente} \n>\n\n"
 
 
 #------------------------# Client Class #------------------------#
@@ -98,7 +98,7 @@ class Empleado(BaseModel_Names):
     __tablename__ = "empleado"
 
     Contrasenia = Column(String)
-    Tipo = Column(String)
+    Tipo = Column(Integer) # 0 Normal, 1 Gerente
     Estado = Column(Integer)
 
     # ------# Relacion con Mantenimiento #------#

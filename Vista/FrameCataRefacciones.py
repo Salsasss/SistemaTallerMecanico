@@ -5,11 +5,14 @@ from PIL import Image, ImageTk
 from Controlador.ctrlFunciones import color_fg
 from Data_Base import obtener_refacciones, obtener_servicios
 from Data_Base import session, Refacciones,Contenido, Servicios
+from Vista.MensajeEmergente import MensajeEmergente
+
 
 class FrameCataRefacciones(CTkFrame):
-    def __init__(self, root):
+    def __init__(self, root, VIN):
         super().__init__(root)
         self.root = root
+        self.VIN = VIN
         CTkLabel(self, text='Servicios Realizados al Vehiculo', font=('arial', 25, 'bold')).pack(pady=(10, 0))
 
         style = ttk.Style()
@@ -17,6 +20,7 @@ class FrameCataRefacciones(CTkFrame):
         style.configure('Treeview', font=('arial', 16), rowheight=35)
 
         self.texto_buscar = StringVar()
+        self.buscar_por = StringVar()
         self.refacciones_carrito = []
 
         self._elementos_herramientas()
@@ -30,7 +34,7 @@ class FrameCataRefacciones(CTkFrame):
             for widget in self.root.pack_slaves():
                 widget.pack_forget()
             from Vista.FramePagar import FramePagar
-            FramePagar(self.root, self.refacciones_carrito).pack(padx=10, pady=10, fill='both', expand=True)
+            FramePagar(self.root, self.refacciones_carrito, self.VIN).pack(padx=10, pady=10, fill='both', expand=True)
 
         boton_submit = CTkButton(self, text='Ir a Pagar', font=('arial', 16, 'bold'), fg_color='#1e8b1e', command=ir_pagar)
         boton_submit.pack(side='right', padx=10, pady=(0, 10), ipadx=5, ipady=5)
@@ -38,11 +42,11 @@ class FrameCataRefacciones(CTkFrame):
         boton_submit.bind('<Leave>', lambda event: color_fg(event, boton=boton_submit, color='#1e8b1e'))
 
     def _elementos_herramientas(self):
-        def buscar(e):
+        def quitar_placeholder(e):
             if self.texto_buscar.get() == 'Buscar':
                 self.texto_buscar.set('')
 
-        def placeholder(e):
+        def poner_placeholder(e):
             if self.texto_buscar.get() == '':
                 self.texto_buscar.set('Buscar')
 
@@ -51,14 +55,18 @@ class FrameCataRefacciones(CTkFrame):
 
         self.buscar = CTkEntry(cont_herramientas, width=400, textvariable=self.texto_buscar, font=('arial', 16), border_width=2, border_color='blue', corner_radius=10)
         self.buscar.pack(fill='x', side='left', expand=True, ipady=5, padx=(0, 10))
-        self.buscar.bind('<Button-1>', buscar)
-        self.buscar.bind('<KeyRelease>', placeholder)
+        self.buscar.bind('<Button-1>', quitar_placeholder)
+        self.buscar.bind('<KeyPress>', quitar_placeholder)
+        self.buscar.bind('<KeyRelease>', poner_placeholder)
         self.texto_buscar.set('Buscar')
 
-        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['Nombre', 'Apellido Paterno', 'Apellido Materno', 'Edad'])
+        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['Servicio', 'ID', 'Costo Unitario'])
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
     def _elementos_tabla(self):
+        def actualizar_busqueda(*args):
+            self._cargar_catalago()
+
         cont_tabla = CTkFrame(self)
         cont_tabla.pack(fill='x', padx=10, pady=(0, 20), expand=False)
 
@@ -83,9 +91,12 @@ class FrameCataRefacciones(CTkFrame):
         self.catalago.heading('3', text='Nombre')
         self.catalago.heading('4', text='Modelo')
         self.catalago.heading('5', text='Cantidad')
-        self.catalago.heading('6', text='Costo')
+        self.catalago.heading('6', text='Costo Unitario')
         self.catalago.bind("<Double-1>", self.on_double_click)
         self.seleccionados = []
+
+        self.texto_buscar.trace('w', actualizar_busqueda)
+        self.buscar_por.trace('w', actualizar_busqueda)
 
         self.images = {
             '65': ImageTk.PhotoImage(Image.open(
@@ -168,17 +179,41 @@ class FrameCataRefacciones(CTkFrame):
     def on_double_click(self, event):
         item = self.catalago.focus()
         servicio = self.catalago.item(item,'values')
-        response = messagebox.askquestion("Agregar Servicio?", f"Servicio: {servicio[0]}")
-        if response == "yes":
+        response = MensajeEmergente(self, 'Agregar Servicio?', f"Servicio: {servicio[0]}")
+        response.mensaje_pregunta()
+        self.wait_window(response)
+        if response.ans:
             find_service = session.query(Servicios).where(Servicios.Tipo_Servicio.like(f"{servicio[0]}")).first()
             self.refacciones_carrito.append(find_service.ID_servicio)
-            self.carrito.insert('','end', text=find_service.ID_servicio, values=(find_service.Tipo_Servicio,find_service.Costo_Servicio))
+            self.carrito.insert('','end', text=find_service.ID_servicio, values=(find_service.Tipo_Servicio, f'${find_service.Costo_Servicio}'))
 
     def _cargar_catalago(self):
-        # Realizar la consulta y obtener los resultados
-        consulta = session.query(Servicios.Tipo_Servicio, Refacciones). \
-            join(Contenido, Servicios.ID_servicio == Contenido.ID_Servicios). \
-            join(Refacciones, Refacciones.ID_refacciones == Contenido.ID_Refacciones).all()
+        if self.texto_buscar.get() == 'Buscar':
+            # Realizar la consulta y obtener los resultados
+            consulta = session.query(Servicios.Tipo_Servicio, Refacciones). \
+                join(Contenido, Servicios.ID_servicio == Contenido.ID_Servicios). \
+                join(Refacciones, Refacciones.ID_refacciones == Contenido.ID_Refacciones).all()
+        else:
+            if self.buscar_por.get() == 'Servicio':
+                # Realizar la consulta y obtener los resultados
+                consulta = session.query(Servicios.Tipo_Servicio, Refacciones). \
+                    join(Contenido, Servicios.ID_servicio == Contenido.ID_Servicios). \
+                    join(Refacciones, Refacciones.ID_refacciones == Contenido.ID_Refacciones).filter(Servicios.Tipo_Servicio.like(f'%{self.texto_buscar.get()}%'))
+            elif self.buscar_por.get() == 'ID':
+                # Realizar la consulta y obtener los resultados
+                consulta = session.query(Servicios.Tipo_Servicio, Refacciones). \
+                    join(Contenido, Servicios.ID_servicio == Contenido.ID_Servicios). \
+                    join(Refacciones, Refacciones.ID_refacciones == Contenido.ID_Refacciones).filter(Servicios.ID_servicio.like(f'%{self.texto_buscar.get()}%'))
+            elif self.buscar_por.get() == 'Costo Unitario':
+                # Realizar la consulta y obtener los resultados
+                consulta = session.query(Servicios.Tipo_Servicio, Refacciones). \
+                    join(Contenido, Servicios.ID_servicio == Contenido.ID_Servicios). \
+                    join(Refacciones, Refacciones.ID_refacciones == Contenido.ID_Refacciones).filter(Servicios.Costo_Servicio.like(f'%{self.texto_buscar.get()}%'))
+            elif self.buscar_por.get() == '':
+                # Realizar la consulta y obtener los resultados
+                consulta = session.query(Servicios.Tipo_Servicio, Refacciones). \
+                    join(Contenido, Servicios.ID_servicio == Contenido.ID_Servicios). \
+                    join(Refacciones, Refacciones.ID_refacciones == Contenido.ID_Refacciones).all()
 
         # Limpiar el Treeview existente
         for item in self.catalago.get_children():
@@ -194,20 +229,22 @@ class FrameCataRefacciones(CTkFrame):
 
         # Insertar datos en el Treeview
         for servicio, refacciones in agrupar_refacciones.items():
-            parent_id = self.catalago.insert('', 'end', text='', values=(servicio, '', '', '', '', ''))
-            print(servicio)
+            find_service = session.query(Servicios).where(Servicios.Tipo_Servicio.like(f"{servicio}")).first()
+            parent_id = self.catalago.insert('', 'end', text='', values=(servicio, find_service.ID_servicio, '', '', '', f'${find_service.Costo_Servicio}'))
             for refaccion in refacciones:
+                contenido = session.query(Contenido).where(Contenido.ID_Refacciones==refaccion.ID_refacciones).first()
+
                 id_refaccion = refaccion.ID_refacciones
                 nombre_refaccion = refaccion.NombreRefacciones
                 modelo = refaccion.Modelo
-                cantidad = refaccion.Cantidad
+                cantidad = contenido.Cantidad_necesaria
                 costo_refaccion = refaccion.Costo
                 img_key = str(id_refaccion)
                 image = self.images.get(img_key)
 
                 if image is None:
-                    self.catalago.insert(parent_id, 'end', text='', values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion), tags=('nested',))
+                    self.catalago.insert(parent_id, 'end', text='', values=('', id_refaccion, nombre_refaccion, modelo, cantidad, f'${costo_refaccion}'), tags=('nested',))
                 else:
-                    self.catalago.insert(parent_id, 'end', text='', image=image, values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion), tags=('nested',))
+                    self.catalago.insert(parent_id, 'end', text='', image=image, values=('', id_refaccion, nombre_refaccion, modelo, cantidad, f'${costo_refaccion}'), tags=('nested',))
 
         self.catalago.tag_configure('nested', background='#F3F3F3')

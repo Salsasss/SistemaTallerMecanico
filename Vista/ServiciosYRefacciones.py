@@ -29,7 +29,6 @@ relacion = {
 # Insertar registros en la tabla ServicioRefaccion
 for id_servicio, refacciones in relacion.items():
     for id_refaccion, cantidad_refaccion in refacciones:
-        print(id_refaccion)
         servicio_refaccion = Data_Base.Contenido(ID_Servicios=id_servicio, ID_Refacciones=id_refaccion, Cantidad_necesaria=cantidad_refaccion)
         sesion.add(servicio_refaccion)
 

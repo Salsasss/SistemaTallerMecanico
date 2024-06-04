@@ -9,6 +9,7 @@ class FrameEmpleados(CTkFrame):
     def __init__(self, root):
         super().__init__(root)
         self.root = root
+        CTkLabel(self, text='Empleados', font=('arial', 25, 'bold')).pack(ipady=10)
 
         # Variables del filtro
         self.texto_buscar = StringVar()
@@ -48,7 +49,7 @@ class FrameEmpleados(CTkFrame):
         self.buscar.bind('<KeyRelease>', poner_placeholder)
         self.texto_buscar.set('Buscar')
 
-        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Teléfono', 'Tipo', 'Activo', 'Inactivo'])
+        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Teléfono', 'Normal', 'Gerente', 'Activo', 'Inactivo'])
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
 
         self.boton_reportes = CTkButton(cont_herramientas, text='Nuevo Empleado', text_color='white', font=('arial', 16, 'bold'), fg_color='#1e8b1e', command=lambda: self.accion_empleado(0))
@@ -123,6 +124,10 @@ class FrameEmpleados(CTkFrame):
                 empleados = session.query(Empleado).filter(Empleado.Estado==1)
             elif self.buscar_por.get() == 'Inactivo':
                 empleados = session.query(Empleado).filter(Empleado.Estado==0)
+            elif self.buscar_por.get() == 'Normal':
+                empleados = session.query(Empleado).filter(Empleado.Tipo == 0)
+            elif self.buscar_por.get() == 'Gerente':
+                empleados = session.query(Empleado).filter(Empleado.Tipo == 1)
             else:
                 empleados = session.query(Empleado).all()
         else:
@@ -138,8 +143,10 @@ class FrameEmpleados(CTkFrame):
                 empleados = session.query(Empleado).filter(Empleado.Apellido_Materno.like(f'%{self.texto_buscar.get()}%'))
             elif self.buscar_por.get() == 'Teléfono':
                 empleados = session.query(Empleado).filter(Empleado.Telefono.like(f'%{self.texto_buscar.get()}%'))
-            elif self.buscar_por.get() == 'Tipo':
-                empleados = session.query(Empleado).filter(Empleado.Tipo.like(f'%{self.texto_buscar.get()}%'))
+            elif self.buscar_por.get() == 'Normal':
+                empleados = session.query(Empleado).filter(Empleado.Tipo==0)
+            elif self.buscar_por.get() == 'Gerente':
+                empleados = session.query(Empleado).filter(Empleado.Tipo==1)
             elif self.buscar_por.get() == 'Activo':
                 empleados = session.query(Empleado).filter(Empleado.Estado == 1)
             elif self.buscar_por.get() == 'Inactivo':
@@ -148,7 +155,8 @@ class FrameEmpleados(CTkFrame):
                 empleados = session.query(Empleado).all()
 
         for empleado in empleados:
+            tipo_empleados = ['Normal', 'Gerente']
             if empleado.Estado==1: #Empleado Activo
-                self.serv.insert('', 'end', text=f'{self.estados[empleado.Estado]}', values=(empleado.RFC, empleado.Nombre, empleado.Apellido_Paterno, empleado.Apellido_Materno, empleado.Telefono, empleado.Tipo), tags=['verde'])
+                self.serv.insert('', 'end', text=f'{self.estados[empleado.Estado]}', values=(empleado.RFC, empleado.Nombre, empleado.Apellido_Paterno, empleado.Apellido_Materno, empleado.Telefono, tipo_empleados[int(empleado.Tipo)]), tags=['verde'])
             elif empleado.Estado==0: #Empleado Inactivo
-                self.serv.insert('', 'end', text=f'{self.estados[empleado.Estado]}', values=(empleado.RFC, empleado.Nombre, empleado.Apellido_Paterno, empleado.Apellido_Materno, empleado.Telefono, empleado.Tipo), tags=['rojo'])
+                self.serv.insert('', 'end', text=f'{self.estados[empleado.Estado]}', values=(empleado.RFC, empleado.Nombre, empleado.Apellido_Paterno, empleado.Apellido_Materno, empleado.Telefono, tipo_empleados[int(empleado.Tipo)]), tags=['rojo'])

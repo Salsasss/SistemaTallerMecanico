@@ -14,7 +14,6 @@ class FrameMenuPrincipal(CTkFrame):
         super().__init__(root)
         self.root = root
         self.session_empleado = self.root.session_empleado
-
         set_appearance_mode("light")
         self.opciones = []
 
@@ -48,17 +47,9 @@ class FrameMenuPrincipal(CTkFrame):
         button2 = CTkLabel(self.cont_principal, image=button2_image, text='')
         button3 = CTkLabel(self.cont_principal, image=button3_image, text='')
 
-        label1 = CTkLabel(self.cont_principal, text="EMPLEADOS", font=('helvetica', 12))
-        label2 = CTkLabel(self.cont_principal, text="AGREGAR REFACCIONES", font=('helvetica', 12))
-        label3 = CTkLabel(self.cont_principal, text="REPORTES", font=('helvetica', 12))
-
         button1.place(x=60, y=200)
         button2.place(x=270, y=200)
         button3.place(x=50, y=370)
-
-        label1.place(x=50, y=310)
-        label2.place(x=250, y=310)
-        label3.place(x=70, y=480)
 
         button1.bind('<Button-1>', lambda event: self.button1_action())
         button2.bind('<Button-1>', lambda event: self.button2_action())
@@ -95,9 +86,15 @@ class FrameMenuPrincipal(CTkFrame):
         elif acc == 2:
             FrameAutomoviles(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
         elif acc == 3:
-            FrameEmpleados(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+            if self.session_empleado['tipo'] == 0: # Si es Normal
+                FrameRefaccionesAdmi(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+            elif self.session_empleado['tipo'] == 1:  # Si es Gerente
+                FrameEmpleados(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
         elif acc == 4:
-            FrameRefaccionesAdmi(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+            if self.session_empleado['tipo'] == 0: # Si es Normal
+                FrameEmpleados(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
+            elif self.session_empleado['tipo'] == 1:  # Si es Gerente
+                FrameRefaccionesAdmi(self.cont_principal).pack(padx=10, pady=10, fill='both', expand=True)
 
     def _barra_opciones(self):
         def pantalla_principal(e):
@@ -116,7 +113,11 @@ class FrameMenuPrincipal(CTkFrame):
         label_logo.grid(row=0, column=0, pady=10)
         label_logo.bind('<Button-1>', pantalla_principal)
 
-        opc = ['🚗 Nuevo Servicio', '👤Clientes', '🔧 Automoviles', '👤 Empleados', '🔧 Refacciones']
+        opc = ['🔧Nuevo Servicio', '👤Clientes', '🚗Automoviles', '👤Empleados', '⚙️Refacciones']
+
+        if self.session_empleado['tipo']==0: # Si es normal
+            opc.pop(3)
+
         for i in range(len(opc)):
             label = CTkLabel(barra_opciones, width=200, text=opc[i], text_color='white', font=('arial', 16, 'bold'), corner_radius=10)
             label.grid(row=i + 1, column=0, ipady=15, padx=10)
@@ -124,9 +125,9 @@ class FrameMenuPrincipal(CTkFrame):
             self.opciones.append(label)
 
         texto_saludo = CTkLabel(barra_opciones, text=f'¡Hola, {self.session_empleado["nombre"]}!', text_color='white', font=('arial', 16, 'bold'))
-        texto_saludo.grid(row=6, column=0, pady=(160, 20), sticky=S)
+        texto_saludo.grid(row=6, column=0, pady=(175, 20), sticky=S)
 
-        label_cerrar_sesion = CTkLabel(barra_opciones, text='Cerrar Sesión', text_color='white', font=('arial', 16, 'bold'))
+        label_cerrar_sesion = CTkLabel(barra_opciones, text='Cerrar Sesión', text_color='#b8161b', font=('arial', 16, 'bold'))
         label_cerrar_sesion.grid(row=7, column=0, sticky=S)
         label_cerrar_sesion.bind('<Enter>', lambda event: color_text(event, boton=label_cerrar_sesion, color='#b8161b'))
         label_cerrar_sesion.bind('<Leave>', lambda event: color_text(event, boton=label_cerrar_sesion, color='white'))

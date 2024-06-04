@@ -1,7 +1,9 @@
+import datetime
 from customtkinter import *
+from datetime import *
 from Controlador.ctrlFunciones import color_fg
 from Vista.MensajeEmergente import MensajeEmergente
-from Data_Base import session, Cliente, Vehiculo
+from Data_Base import session, Cliente, Vehiculo, Mantenimiento
 
 class FrameNuevoServicio(CTkFrame):
     def __init__(self, root):
@@ -48,6 +50,11 @@ class FrameNuevoServicio(CTkFrame):
                 MensajeEmergente(self, 'Error', 'Por favor. Llene todos los campos').mensaje_error()
                 return
 
+        self.datetime = datetime.now()
+        part_1 = Mantenimiento(Fecha_inicio=date(self.datetime.year,self.datetime.month, self.datetime.day), Estatus=0)
+        session.add(part_1)
+        session.commit()
+
         # ---------------# Inserts #---------------
 
         try:
@@ -69,7 +76,8 @@ class FrameNuevoServicio(CTkFrame):
                 no_exterior=self.num_ext.get(),
             )
         except Exception as e:
-            MensajeEmergente(self, 'Error', 'Error al guardar el Cliente').mensaje_error()
+            session.rollback()
+            MensajeEmergente(self, 'Error', 'Error al guardar el Cliente. Por favor revise los campos').mensaje_error()
 
         try:
             # -------------# Auto #-------------
@@ -82,35 +90,38 @@ class FrameNuevoServicio(CTkFrame):
                 VIN=self.vin.get(),
                 Placa=self.placas.get()
             )
+            self.finder = session.query(Mantenimiento).order_by(Mantenimiento.Orden.desc()).first()
+            self.Insert_into_car.Maintenance.append(self.finder)
+            self.Insert_into_client.vehicle.append(self.Insert_into_car)
+            session.add(self.Insert_into_client)
+            session.commit()
+
+            MensajeEmergente(self, 'Exito', 'Servicio registrado Correctamente').mensaje_correcto()
+
+            self.nombre.set('')
+            self.ap_paterno.set('')
+            self.ap_materno.set('')
+            self.telefono.set('')
+            self.rfc.set('')
+
+            self.estado.set('')
+            self.ciudad.set('')
+            self.colonia.set('')
+            self.cp.set('')
+            self.calle.set('')
+            self.num_int.set('')
+            self.num_ext.set('')
+
+            self.marca.set('')
+            self.modelo.set('')
+            self.anio.set('')
+            self.motor.set('')
+            self.km.set('')
+            self.vin.set('')
+            self.placas.set('')
         except Exception as e:
-            MensajeEmergente(self, 'Error', 'Error al guardar el Automovil').mensaje_error()
-
-        self.Insert_into_client.vehicle.append(self.Insert_into_car)
-        session.add(self.Insert_into_client)
-        session.commit()
-        MensajeEmergente(self, 'Exito', 'Servicio registrado Correctamente').mensaje_correcto()
-
-        self.nombre.set('')
-        self.ap_paterno.set('')
-        self.ap_materno.set('')
-        self.telefono.set('')
-        self.rfc.set('')
-
-        self.estado.set('')
-        self.ciudad.set('')
-        self.colonia.set('')
-        self.cp.set('')
-        self.calle.set('')
-        self.num_int.set('')
-        self.num_ext.set('')
-
-        self.marca.set('')
-        self.modelo.set('')
-        self.anio.set('')
-        self.motor.set('')
-        self.km.set('')
-        self.vin.set('')
-        self.placas.set('')
+            session.rollback()
+            MensajeEmergente(self, 'Error', 'Error al guardar el Automovil. Por favor revise los campos').mensaje_error()
 
     def _elementos_cliente(self):
         def elementos_persona(cont):

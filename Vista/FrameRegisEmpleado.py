@@ -15,7 +15,8 @@ class FrameRegisEmpleado(CTkToplevel):
         CTkLabel(self, text='Datos del Empleado', font=('arial', 25, 'bold')).pack(pady=(0, 5), ipady=10)
 
         self.accion = accion
-
+        self.tipos_empleados = {'Normal':0, 'Gerente':1}
+        self.tipos_empleados_ar = ['Normal', 'Gerente']
         self.show = BooleanVar()
 
         self.rfc = StringVar()
@@ -66,7 +67,7 @@ class FrameRegisEmpleado(CTkToplevel):
         CTkEntry(info_usuario, width=200, font=('arial', 16), textvariable=self.telefono).grid(row=5, column=2, padx=(0, 10))
 
         CTkLabel(info_usuario, width=135, text='Tipo: ', font=('arial', 16, 'bold'), anchor='e').grid(row=6, column=1, padx=10, pady=5)
-        CTkEntry(info_usuario, width=200, font=('arial', 16), textvariable=self.tipo).grid(row=6, column=2, padx=(0, 10))
+        CTkOptionMenu(info_usuario, width=200, variable=self.tipo, fg_color='white', text_color='black', font=('arial', 16, 'bold'), values=['Normal', 'Gerente']).grid(row=6, column=2, padx=(0, 10))
 
         txt_contra = 'Contraseña:'
         if self.accion==1: # Editar empleado
@@ -87,7 +88,7 @@ class FrameRegisEmpleado(CTkToplevel):
 
         CTkButton(buttons_frame, text='Guardar', text_color='white', fg_color='green', font=('arial', 16, 'bold'), command=self.guardar_empleado).pack(side='left', padx=10, pady=5)
         if self.accion==1: # Editar empleado
-            CTkButton(buttons_frame, text='Dar de Baja', text_color='white', fg_color='red', font=('arial', 16, 'bold'), command=self.baja_empleado).pack(side='left', padx=10, pady=5)
+            CTkButton(buttons_frame, text='Dar de Baja', text_color='white', fg_color='red', font=('arial', 16), command=self.baja_empleado).pack(side='left', padx=10, pady=5)
 
     def buscar_empleado(self):
         empleado = session.query(Empleado).filter(Empleado.RFC == self.rfc_buscar).first()
@@ -97,14 +98,17 @@ class FrameRegisEmpleado(CTkToplevel):
             self.apellido_paterno.set(empleado.Apellido_Paterno)
             self.apellido_materno.set(empleado.Apellido_Materno)
             self.telefono.set(empleado.Telefono)
-            self.tipo.set(empleado.Tipo)
+            self.tipo.set(self.tipos_empleados_ar[empleado.Tipo])
             self.original_rfc = self.rfc_buscar
         else:
             MensajeEmergente(self, 'Error', 'Empleado no encontrado').mensaje_error()
 
     def guardar_empleado(self):
         #Revisar que todos los campos esten llenos
-        datos = [self.rfc.get(), self.nombre.get(), self.apellido_paterno.get(), self.apellido_materno.get(), self.telefono.get(), self.tipo, self.contrasenia.get()]
+        datos = [self.rfc.get(), self.nombre.get(), self.apellido_paterno.get(), self.apellido_materno.get(), self.telefono.get(), self.tipo.get(), self.contrasenia.get()]
+
+        if self.accion==1: # Si se esta editando
+            datos.pop() # No se revisara que se halla escrito contraseña
 
         for dato in datos:
             if dato == '':
@@ -123,7 +127,7 @@ class FrameRegisEmpleado(CTkToplevel):
                     Apellido_Paterno=self.apellido_paterno.get(),
                     Apellido_Materno=self.apellido_materno.get(),
                     Telefono=self.telefono.get(),
-                    Tipo=self.tipo.get(),
+                    Tipo=self.tipos_empleados.get(self.tipo.get()),
                     Contrasenia=hashear(self.contrasenia.get())
                 )
                 session.add(new_empleado)
@@ -131,14 +135,14 @@ class FrameRegisEmpleado(CTkToplevel):
                 MensajeEmergente(self, 'Exito', '¡Empleado guardado con éxito!').mensaje_correcto()
                 self.limpiar_campos()
         elif self.accion==1:
-            # Editar emleado
+            # Editar empleado
             empleado = session.query(Empleado).filter(Empleado.RFC == self.rfc_buscar).first()
             if empleado:
                 empleado.Nombre = self.nombre.get()
                 empleado.Apellido_Paterno = self.apellido_paterno.get()
                 empleado.Apellido_Materno = self.apellido_materno.get()
                 empleado.Telefono = self.telefono.get()
-                empleado.Tipo = self.tipo.get()
+                empleado.Tipo = self.tipos_empleados.get(self.tipo.get())
                 if self.contrasenia.get()!='':
                     empleado.Contrasenia = self.contrasenia.get()
                 session.commit()

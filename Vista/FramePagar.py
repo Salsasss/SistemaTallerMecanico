@@ -1,3 +1,4 @@
+from datetime import *
 from tkinter.ttk import Treeview
 from tkinter import messagebox, ttk
 from customtkinter import *
@@ -5,17 +6,20 @@ from tkinter import *
 from PIL import Image, ImageTk
 
 from Controlador.ctrlFunciones import color_fg
-from Vista.Data_Base import session, Servicios, Contenido, Refacciones
+from Vista.Data_Base import session, Servicios, Contenido, Refacciones, Mantenimiento
 from Vista.FrameAutomoviles import FrameAutomoviles
 from Vista.MensajeEmergente import MensajeEmergente
 
 class FramePagar(CTkFrame):
-    def __init__(self, root, refacciones_carrito):
+    def __init__(self, root, refacciones_carrito, VIN):
         super().__init__(root)
         self.root = root
+        self.VIN = VIN
         self.refacciones_carrito = refacciones_carrito
         CTkLabel(self, text='Total a Pagar', font=('arial', 25, 'bold')).pack(fill='x', pady=10)
         self.txt_compra = StringVar()
+        self.total_compra = DoubleVar()
+        self.total_compra.set(0)
 
         self.images = {
             '65': ImageTk.PhotoImage(Image.open(
@@ -105,10 +109,8 @@ class FramePagar(CTkFrame):
         # Agregando las refacciones al carrito
         self._cargar_catalago()
 
-        CTkLabel(self, text='Total de la compra', font=('arial', 16, 'bold')).pack(fill='x', padx=5, pady=5)
+        CTkLabel(self, text='Total a Pagar', font=('arial', 16, 'bold')).pack(fill='x', padx=5, pady=5)
         CTkEntry(self, justify=CENTER, state=DISABLED, textvariable=self.txt_compra, font=('arial', 16), border_width=2, border_color='blue', corner_radius=10).pack(fill='x', padx=5, pady=5, ipady=5)
-
-        self.txt_compra.set('20')
 
         cont_botones = CTkFrame(self, fg_color='#dbdbdb')
         #cont_botones.grid(row=6, column=0, padx=5, pady=5, columnspan=2)
@@ -144,20 +146,30 @@ class FramePagar(CTkFrame):
 
         # Insertar datos en el Treeview
         for servicio, refacciones in agrupar_refacciones.items():
-            parent_id = self.catalago.insert('', 'end', text='', values=(servicio, '', '', '', '', ''))
+            find_service = session.query(Servicios).where(Servicios.Tipo_Servicio.like(f"{servicio}")).first()
+
+            # Sumando el total
+            self.total_compra.set(self.total_compra.get() + find_service.Costo_Servicio)
+
+            parent_id = self.catalago.insert('', 'end', text='', values=(servicio, find_service.ID_servicio, '', '', '', f'${find_service.Costo_Servicio}'))
             for refaccion in refacciones:
+                contenido = session.query(Contenido).where(Contenido.ID_Refacciones==refaccion.ID_refacciones).first()
                 id_refaccion = refaccion.ID_refacciones
                 nombre_refaccion = refaccion.NombreRefacciones
                 modelo = refaccion.Modelo
-                cantidad = refaccion.Cantidad
+                cantidad = contenido.Cantidad_necesaria
                 costo_refaccion = refaccion.Costo
                 img_key = str(id_refaccion)
                 image = self.images.get(img_key)
 
+                # Sumando el total
+                self.total_compra.set(self.total_compra.get() + costo_refaccion)
+                self.txt_compra.set(f'${self.total_compra.get()}')
                 if image is None:
-                    self.catalago.insert(parent_id, 'end', text='', values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion), tags=('nested',))
+                    self.catalago.insert(parent_id, 'end', text='', values=('', id_refaccion, nombre_refaccion, modelo, cantidad, f'${costo_refaccion}'), tags=('nested',))
                 else:
-                    self.catalago.insert(parent_id, 'end', text='', image=image, values=('', id_refaccion, nombre_refaccion, modelo, cantidad, costo_refaccion), tags=('nested',))
+                    self.catalago.insert(parent_id, 'end', text='', image=image, values=('', id_refaccion, nombre_refaccion, modelo, cantidad, f'${costo_refaccion}'), tags=('nested',))
+
 
         self.catalago.tag_configure('nested', background='#F3F3F3')
 
@@ -166,7 +178,19 @@ class FramePagar(CTkFrame):
         ans.mensaje_pregunta()
         self.wait_window(ans)
         if ans.ans:
-            MensajeEmergente(self, 'Pago', 'Compra finalizada con exito!!').mensaje_correcto()
+            self.datetime = datetime.now()
+
+            # Completando el servicio
+            status = session.query(Mantenimiento).filter_by(VIN=self.VIN).first()
+            status.Estatus = 1
+            status.Fecha_salida = date(self.datetime.year, self.datetime.month, self.datetime.day)
+            status.Factura = self.total_compra.get()
+            session.commit()
+
+            for widget in self.root.pack_slaves():
+                widget.pack_forget()
+            MensajeEmergente(self.root, 'Exito', '¡Servicio Completado!').mensaje_correcto()
+            FrameAutomoviles(self.root).pack(padx=10, pady=10, fill='both', expand=True)
 
     def cancel(self):
         ans = MensajeEmergente(self, 'Cancelar Pago', '¿Desea cancelar la compra?')
@@ -175,5 +199,4 @@ class FramePagar(CTkFrame):
         if ans.ans:
             for widget in self.root.pack_slaves():
                 widget.pack_forget()
-
             FrameAutomoviles(self.root).pack(padx=10, pady=10, fill='both', expand=True)

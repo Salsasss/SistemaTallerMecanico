@@ -4,7 +4,8 @@ from Controlador.ctrlFunciones import hashear
 from Data_Base import session, Empleado
 from Vista.FrameMenuPrincipal import FrameMenuPrincipal
 from Vista.MensajeEmergente import MensajeEmergente
-
+# SACA040316D19
+# realsigma
 class Login(CTk):
     def __init__(self):
         super().__init__()
@@ -18,24 +19,22 @@ class Login(CTk):
 
         self.columnconfigure(0, weight=1)
 
-
-
-        self.session_empleado['rfc'] = 'self.rfc.get()'
+        # Guardando la sesion
+        self.session_empleado['rfc'] = 'nk'
+        self.session_empleado['tipo'] = 1
         self.session_empleado['nombre'] = 'empleado.Nombre'
         self.session_empleado['logeado'] = True
-
-        self.cont_login = CTkFrame(self, fg_color='blue', corner_radius=20)
-        self.cont_login.grid(row=0, column=0, ipady=20, pady=(0, 20))
 
         # Iniciando sesion
         self.withdraw()
         menu_principal = CTkToplevel()
         menu_principal.session_empleado = self.session_empleado
         menu_principal.title('Sistema Taller Mecánico')
-        menu_principal.geometry(
-            f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
+        menu_principal.geometry(f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
         FrameMenuPrincipal(menu_principal).pack(fill='both', expand=True)
 
+        self.cont_login = CTkFrame(self, fg_color='blue', corner_radius=20)
+        self.cont_login.grid(row=0, column=0, ipady=20, pady=(0, 20))
 
         self.rfc = StringVar()
         self.contra = StringVar()
@@ -51,6 +50,7 @@ class Login(CTk):
                 if empleado.Estado==1: # Solo si el empleado esta Activo
                     # Guardando la sesion
                     self.session_empleado['rfc'] = self.rfc.get()
+                    self.session_empleado['tipo'] = empleado.Tipo
                     self.session_empleado['nombre'] = empleado.Nombre
                     self.session_empleado['logeado'] = True
 
