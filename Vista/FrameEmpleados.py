@@ -12,6 +12,7 @@ class FrameEmpleados(CTkFrame):
         CTkLabel(self, text='Empleados', font=('arial', 25, 'bold')).pack(ipady=10)
 
         # Variables del filtro
+        self.opciones_buscar = ['Seleccione uno', 'RFC', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Teléfono', 'Normal', 'Gerente', 'Activo', 'Inactivo']
         self.texto_buscar = StringVar()
         self.buscar_por = StringVar()
         self.estados = ['Inactivo', 'Activo']
@@ -49,8 +50,9 @@ class FrameEmpleados(CTkFrame):
         self.buscar.bind('<KeyRelease>', poner_placeholder)
         self.texto_buscar.set('Buscar')
 
-        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Teléfono', 'Normal', 'Gerente', 'Activo', 'Inactivo'])
+        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=self.opciones_buscar)
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
+        self.select_buscar.set('Seleccione uno')
 
         self.boton_reportes = CTkButton(cont_herramientas, text='Nuevo Empleado', text_color='white', font=('arial', 16, 'bold'), fg_color='#1e8b1e', command=lambda: self.accion_empleado(0))
         self.boton_reportes.pack(fill='x', side='left', ipady=5)
@@ -70,6 +72,9 @@ class FrameEmpleados(CTkFrame):
 
     def _elementos_tabla(self):
         def actualizar_busqueda(*args):
+            if self.opciones_buscar.__contains__('Seleccione uno'):
+                self.opciones_buscar.remove('Seleccione uno')
+                self.select_buscar.configure(values=self.opciones_buscar)
             self.actualizar_treeview()
 
         cont_tabla = CTkFrame(self)

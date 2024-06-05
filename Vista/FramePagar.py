@@ -11,9 +11,11 @@ from Vista.FrameAutomoviles import FrameAutomoviles
 from Vista.MensajeEmergente import MensajeEmergente
 
 class FramePagar(CTkFrame):
-    def __init__(self, root, refacciones_carrito, VIN):
+    def __init__(self, root, refacciones_carrito, VIN, session_empleado):
         super().__init__(root)
         self.root = root
+        self.session_empleado = session_empleado
+
         self.VIN = VIN
         self.refacciones_carrito = refacciones_carrito
         CTkLabel(self, text='Total a Pagar', font=('arial', 25, 'bold')).pack(fill='x', pady=10)
@@ -79,7 +81,6 @@ class FramePagar(CTkFrame):
             '56': ImageTk.PhotoImage(Image.open(
                 "../media/anticongelantepurpura.png").resize((80, 90), Image.Resampling.LANCZOS))
         }
-
         cont_tabla = CTkFrame(self)
         cont_tabla.pack(fill='x', padx=10, pady=(0, 20), expand=False)
 
@@ -180,17 +181,18 @@ class FramePagar(CTkFrame):
         if ans.ans:
             self.datetime = datetime.now()
 
-            # Completando el servicio
+            # Completando el servicio en la tabla mantenimiento
             status = session.query(Mantenimiento).filter_by(VIN=self.VIN).first()
             status.Estatus = 1
             status.Fecha_salida = date(self.datetime.year, self.datetime.month, self.datetime.day)
             status.Factura = self.total_compra.get()
+            status.RFC_empleado = self.session_empleado['rfc']
             session.commit()
 
             for widget in self.root.pack_slaves():
                 widget.pack_forget()
             MensajeEmergente(self.root, 'Exito', '¡Servicio Completado!').mensaje_correcto()
-            FrameAutomoviles(self.root).pack(padx=10, pady=10, fill='both', expand=True)
+            FrameAutomoviles(self.root, self.session_empleado).pack(padx=10, pady=10, fill='both', expand=True)
 
     def cancel(self):
         ans = MensajeEmergente(self, 'Cancelar Pago', '¿Desea cancelar la compra?')

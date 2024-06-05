@@ -9,9 +9,10 @@ from Vista.MensajeEmergente import MensajeEmergente
 
 
 class FrameCataRefacciones(CTkFrame):
-    def __init__(self, root, VIN):
+    def __init__(self, root, VIN, session_empleado):
         super().__init__(root)
         self.root = root
+        self.session_empleado = session_empleado
         self.VIN = VIN
         CTkLabel(self, text='Servicios Realizados al Vehiculo', font=('arial', 25, 'bold')).pack(pady=(10, 0))
 
@@ -34,7 +35,7 @@ class FrameCataRefacciones(CTkFrame):
             for widget in self.root.pack_slaves():
                 widget.pack_forget()
             from Vista.FramePagar import FramePagar
-            FramePagar(self.root, self.refacciones_carrito, self.VIN).pack(padx=10, pady=10, fill='both', expand=True)
+            FramePagar(self.root, self.refacciones_carrito, self.VIN, self.session_empleado).pack(padx=10, pady=10, fill='both', expand=True)
 
         boton_submit = CTkButton(self, text='Ir a Pagar', font=('arial', 16, 'bold'), fg_color='#1e8b1e', command=ir_pagar)
         boton_submit.pack(side='right', padx=10, pady=(0, 10), ipadx=5, ipady=5)

@@ -30,9 +30,9 @@ class FrameRefaccionesAdmi(CTkFrame):
             opciones.append(x.Tipo_Servicio)
 
         info_refaccion = CTkFrame(self)
-        info_refaccion.pack(fill='x', padx=10, pady=(0, 10), ipady=15, expand=False)
+        info_refaccion.pack(fill='x', padx=10, ipady=15, expand=False)
 
-        CTkLabel(info_refaccion, text='Datos de la Refacción', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=3, padx=5, pady=5)
+        CTkLabel(info_refaccion, text='Datos de la Refacción', font=('arial', 18, 'bold')).grid(row=0, column=0, columnspan=4, padx=5, pady=5)
 
         CTkLabel(info_refaccion, width=135, text='ID Refacción: ', font=('arial', 16, 'bold'), anchor='e').grid(row=1, column=0, padx=5, pady=5)
         self.id_entry = CTkEntry(info_refaccion, width=200, font=('arial', 16), textvariable=self.id_refaccion)
@@ -54,14 +54,13 @@ class FrameRefaccionesAdmi(CTkFrame):
         CTkOptionMenu(info_refaccion, width=300, fg_color='blue', variable=self.menu, text_color='white', font=('arial', 16, 'bold'), values=opciones).grid(row=2, column=3, padx=5, pady=5)
 
     def _boton_submit(self):
-        buttons_frame = CTkFrame(self)
-        buttons_frame.pack(fill='x', padx=10, pady=(0, 10), expand=False)
+        buttons_frame = CTkFrame(self, fg_color='#dbdbdb')
+        buttons_frame.pack(fill='x', pady=5, expand=False)
 
-        CTkButton(buttons_frame, text='Guardar', text_color='white', fg_color='green', font=('arial', 16, 'bold'), command=self._guardar_refaccion).pack(side='left', padx=10, pady=5)
-        self.boton_modificar = CTkButton(buttons_frame, text='Modificar', text_color='white', fg_color='orange', font=('arial', 16, 'bold'), state=DISABLED, command=self._modificar_refaccion)
-        self.boton_modificar.pack(side='left', padx=10, pady=5)
+        self.boton_guardar = CTkButton(buttons_frame, text='Guardar', text_color='white', fg_color='green', font=('arial', 16, 'bold'), command=self._guardar_refaccion)
+        self.boton_guardar.pack(side='left', padx=10, pady=5)
 
-        self.boton_eliminar = CTkButton(buttons_frame, text='Eliminar', text_color='white', fg_color='red', font=('arial', 16, 'bold'), state=DISABLED, command=self._eliminar_refaccion)
+        self.boton_eliminar = CTkButton(buttons_frame, text='Eliminar', text_color='white', fg_color='#4d4d4d', font=('arial', 16, 'bold'), state=DISABLED, command=self._eliminar_refaccion)
         self.boton_eliminar.pack(side='left', padx=10, pady=5)
 
     def _crear_treeview(self):
@@ -115,8 +114,8 @@ class FrameRefaccionesAdmi(CTkFrame):
             self.costo.set(values[4])
             self.menu.set(services_finder.Tipo_Servicio)
 
-        self.boton_modificar.configure(state=NORMAL)
-        self.boton_eliminar.configure(state=NORMAL)
+            self.boton_guardar.configure(text='Editar', command=self._modificar_refaccion)
+            self.boton_eliminar.configure(state=NORMAL, fg_color='red')
 
     def _guardar_refaccion(self):
         #Revisar que todos los campos esten llenos
@@ -167,7 +166,7 @@ class FrameRefaccionesAdmi(CTkFrame):
                 refaccion.Costo = float(self.costo.get())
                 session.commit()
 
-                service_finder = session.query(Servicios).filter_by(Tipo_Servicio = self.menu.get()).first()
+                service_finder = session.query(Servicios).filter_by(Tipo_Servicio=self.menu.get()).first()
                 existing_content = session.query(Contenido).filter_by(ID_Refacciones=self.id_refaccion.get()).first()
                 existing_content.ID_Servicios = int(service_finder.ID_servicio)
                 session.commit()

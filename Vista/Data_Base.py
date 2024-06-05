@@ -32,7 +32,6 @@ class BaseModel_Names(Base):
 class Mantenimiento(Base):
     __tablename__ = "mantenimiento"
 
-
     Orden = Column(Integer, primary_key=True, autoincrement=True)
     Fecha_inicio = Column(Date)
     Fecha_salida = Column(Date)
@@ -41,18 +40,14 @@ class Mantenimiento(Base):
 
     # ------# FK's de Vehiculo, Empleado y Servicio #------#
     VIN = Column(ForeignKey("vehiculo.VIN"))
-    ID_servicio = Column(ForeignKey("servicio.ID_servicio"))
     RFC_empleado = Column(ForeignKey("empleado.RFC"))
-
 
     def __repr__(self):
         return f"<Mantenimiento \n Orden = {self.Orden} \n Factura = {self.Factura} \n VIN = {self.VIN} \n ID de servicio = {self.ID_servicio} \n RFC del empleado = {self.RFC_empleado} \n>\n\n"
 
-
 #------------------------# Vehicle Class #------------------------#
 class Vehiculo(Base):
     __tablename__ = "vehiculo"
-
 
     VIN = Column(Integer, primary_key=True)
     Placa = Column(String)
@@ -132,9 +127,6 @@ class Servicios(Base):
     Costo_Servicio = Column(Double)
     #------# Relacion con Servicios y Refacciones #------#
     contenido = relationship(Contenido)
-
-    # ------# Relacion con Mantenimiento #------#
-    Maintenance = relationship(Mantenimiento)
 
 
     def __repr__(self):

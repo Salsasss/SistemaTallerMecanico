@@ -5,12 +5,14 @@ from Vista.FrameCataRefacciones import FrameCataRefacciones
 from Vista.MensajeEmergente import MensajeEmergente
 
 class FrameAutomoviles(CTkFrame):
-    def __init__(self, root):
+    def __init__(self, root, session_empleado):
         super().__init__(root)
         CTkLabel(self, text='Automoviles', font=('arial', 25, 'bold')).pack(pady=(10, 0))
         self.root = root
+        self.session_empleado = session_empleado
 
         # Variables del filtro
+        self.opciones_buscar = ['RFC Cliente', 'VIN', 'Marca', 'Año', 'Kilometraje', 'Placa', 'Modelo', 'Motor', 'En revisión', 'Completado']
         self.texto_buscar = StringVar()
         self.buscar_por = StringVar()
 
@@ -41,8 +43,9 @@ class FrameAutomoviles(CTkFrame):
         self.buscar.bind('<KeyRelease>', poner_placeholder)
         self.texto_buscar.set('Buscar')
 
-        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC Cliente', 'VIN', 'Marca', 'Año', 'Kilometraje', 'Placa', 'Modelo', 'Motor', 'En revisión', 'Completado'])
+        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=self.opciones_buscar)
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
+        self.select_buscar.set('Seleccione uno')
 
     def accion_doble_click(self, e):
         # Solo si el auto esta en revision
@@ -57,7 +60,7 @@ class FrameAutomoviles(CTkFrame):
                 for widget in self.root.pack_slaves():
                     widget.pack_forget()
                 vin = self.serv.item(self.serv.selection()[0], 'values')[0]
-                FrameCataRefacciones(self.root, vin).pack(padx=10, pady=10, fill='both', expand=True)
+                FrameCataRefacciones(self.root, vin, self.session_empleado).pack(padx=10, pady=10, fill='both', expand=True)
         else:
             MensajeEmergente(self, 'Error', 'Servicio ya Completado').mensaje_error()
 

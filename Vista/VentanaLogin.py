@@ -14,13 +14,17 @@ class Login(CTk):
 
         self.configure(fg_color='blue')
         self.title('Sistema de Taller Mecánico')
+        self.iconbitmap('../media/logo.ico')
         self.geometry(f'300x455+{((self.winfo_screenwidth()) // 2)}+{((self.winfo_screenheight() - 500) // 2)}')
         self.resizable(False, False)
 
         self.columnconfigure(0, weight=1)
 
+        self.cont_login = CTkFrame(self, fg_color='blue', corner_radius=20)
+        self.cont_login.grid(row=0, column=0, ipady=20, pady=(0, 20))
+
         # Guardando la sesion
-        self.session_empleado['rfc'] = 'nk'
+        self.session_empleado['rfc'] = 'self.rfc.get()'
         self.session_empleado['tipo'] = 1
         self.session_empleado['nombre'] = 'empleado.Nombre'
         self.session_empleado['logeado'] = True
@@ -28,13 +32,10 @@ class Login(CTk):
         # Iniciando sesion
         self.withdraw()
         menu_principal = CTkToplevel()
-        menu_principal.session_empleado = self.session_empleado
         menu_principal.title('Sistema Taller Mecánico')
-        menu_principal.geometry(f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
-        FrameMenuPrincipal(menu_principal).pack(fill='both', expand=True)
-
-        self.cont_login = CTkFrame(self, fg_color='blue', corner_radius=20)
-        self.cont_login.grid(row=0, column=0, ipady=20, pady=(0, 20))
+        menu_principal.geometry(
+            f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
+        FrameMenuPrincipal(menu_principal, self.session_empleado).pack(fill='both', expand=True)
 
         self.rfc = StringVar()
         self.contra = StringVar()
@@ -57,10 +58,9 @@ class Login(CTk):
                     # Iniciando sesion
                     self.withdraw()
                     menu_principal = CTkToplevel()
-                    menu_principal.session_empleado = self.session_empleado
                     menu_principal.title('Sistema Taller Mecánico')
                     menu_principal.geometry(f'1200x700+{((self.winfo_screenwidth() - 1000) // 2)}+{((self.winfo_screenheight() - 760) // 2)}')
-                    FrameMenuPrincipal(menu_principal).pack(fill='both', expand=True)
+                    FrameMenuPrincipal(menu_principal, self.session_empleado).pack(fill='both', expand=True)
                 else:
                     MensajeEmergente(self, 'Error', 'Empleado dado de baja').mensaje_error()
             else:

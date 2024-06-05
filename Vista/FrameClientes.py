@@ -10,6 +10,7 @@ class FrameClientes(CTkFrame):
         CTkLabel(self, text='Clientes', font=('arial', 25, 'bold')).pack(pady=(10, 0))
 
         # Variables del filtro
+        self.opciones_buscar = ['RFC', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Teléfono', 'Estado', 'Ciudad', 'C.P.', 'Colonia', 'Calle', 'N. Ext.', 'N. Int.']
         self.texto_buscar = StringVar()
         self.buscar_por = StringVar()
 
@@ -37,8 +38,9 @@ class FrameClientes(CTkFrame):
         self.buscar.bind('<KeyRelease>', poner_placeholder)
         self.texto_buscar.set('Buscar')
 
-        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=['RFC', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'Teléfono', 'Estado', 'Ciudad', 'C.P.', 'Colonia', 'Calle', 'N. Ext.', 'N. Int.'])
+        self.select_buscar = CTkOptionMenu(cont_herramientas, width=170, variable=self.buscar_por, fg_color='blue', text_color='white', font=('arial', 16, 'bold'), values=self.opciones_buscar)
         self.select_buscar.pack(fill='x', side='left', ipady=5, padx=(0, 10))
+        self.select_buscar.set('Seleccione uno')
 
     def accion_automovil(self, rfc):
         ventana_nuevo_auto = FrameRegisAutomovil(self, rfc)
@@ -57,6 +59,9 @@ class FrameClientes(CTkFrame):
 
     def _elementos_tabla(self):
         def actualizar_busqueda(*args):
+            if self.opciones_buscar.__contains__('Seleccione uno'):
+                self.opciones_buscar.remove('Seleccione uno')
+                self.select_buscar.configure(values=self.opciones_buscar)
             self.actualizar_treeview()
 
         cont_tabla = CTkFrame(self)
